@@ -1,6 +1,6 @@
 # Your login. For example, mine is dt10. Yours
 # won't be eie2ugs...
-LOGIN ?= eie2ugs
+LOGIN ?= nn1114
 
 CPPFLAGS += -W -Wall -g
 CPPFLAGS += -I include
@@ -29,3 +29,5 @@ fragments/run_fibonacci : $(DEFAULT_OBJECTS) $(USER_CPU_OBJECTS)
     
 fragments/run_addu : $(DEFAULT_OBJECTS) $(USER_CPU_OBJECTS)
 
+clean:
+	$(RM) $(USER_CPU_OBJECTS)
