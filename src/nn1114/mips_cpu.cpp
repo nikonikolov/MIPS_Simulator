@@ -1,6 +1,7 @@
 #include "mips.h"
 #include "mips_cpu_def.h"
 #include "mips_cpu_private.h"
+#include "mips_cpu_ins_decode.h"
 
 
 mips_cpu_h mips_cpu_create(mips_mem_h mem){
