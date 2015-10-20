@@ -21,7 +21,7 @@ const vector<Ins>* HashT[3]={&PtrR, &PtrI, &PtrJ};
 
 
 // Decode Instruction Word and call the corresponding function to execute instruction
-mips_error decode(mips_cpu_h state, uint32_t InsWord){
+mips_error decode(uint32_t InsWord, FP& FnPtr){
 	
 	// extract opcode
 	uint8_t opcode = extr_opcode(InsWord);
@@ -40,8 +40,8 @@ mips_error decode(mips_cpu_h state, uint32_t InsWord){
 	// Error if InsWord is not found
 	if(FnImpl == NULL) return mips_ErrorNotImplemented;
 
-	// Execute instruction
-	FnImpl(state, InsWord);
+	// return valid Function Pointer
+	FnPtr = FnImpl;
 
 	return mips_Success;
 }

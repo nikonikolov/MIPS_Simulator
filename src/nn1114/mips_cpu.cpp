@@ -90,23 +90,35 @@ mips_error mips_cpu_step(
 	mips_cpu_h state	//! Valid (non-empty) handle to a CPU
 ){
 	
-	uint32_t instruction;
+	uint32_t InsWord;
 
-	mips_error readerr = mips_mem_read(
+	mips_error err = mips_mem_read(
    	state->memPtr,							//!< Handle to target memory
     state->PC,								//!< Byte address to start transaction at
     (uint32_t)BLOCKSIZE,					//!< Number of bytes to transfer
-    (uint8_t*)&(instruction)		//!< Receives the target bytes
+    (uint8_t*)&(InsWord)		//!< Receives the target bytes
 	// CHECK THAT THE LAST PARAMETER WORKS PROPERLY
 	);
 	
 	// check if read is sucessful
-	if(!readerr) return readerr;
+	if(!err) return err;
 	
-	instruction = change_endian(instruction);
+	// convert from big endian
+	InsWord = change_endian(InsWord);
+
+	// declare pointer to function implementation
+	FP FnImpl;
+
+	// decode instruction
+	err = decode(InsWord, FnImpl);
+	if(!err) return err;
+
+	// execute instruction
+	FnImpl(state, InsWord);
+
 
 	// DON'T FORGET TO ACCOUNT FOR BRANCHES
-	//advance_pc (state, BLOCKSIZE);
+
 	advance_pc(state, (uint32_t)BLOCKSIZE);
 	return mips_Success;
 	

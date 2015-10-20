@@ -119,10 +119,14 @@ mips_error mips_cpu_step(
             
             // NOTE : What about updating the program counter
             return mips_Success;
-        }else{
+        }
+
+        else{
             return mips_ErrorNotImplemented;
         }
-    }else{
+    }
+
+    else{
         return mips_ErrorNotImplemented;
     }
 }

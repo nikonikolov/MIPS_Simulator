@@ -22,7 +22,8 @@ FP findIns(uint8_t opcode, const vector<Ins>*& InsStruct);
 
 int hashfn(uint8_t instype);
 
-mips_error decode(mips_cpu_h state, uint32_t InsWord);
+mips_error decode(uint32_t InsWord, FP& FnPtr);
+
 
 uint8_t extr_R_fn(uint32_t InsWord);
 uint8_t extr_opcode(uint32_t InsWord);
