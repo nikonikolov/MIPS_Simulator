@@ -4,6 +4,8 @@
 #ifndef INSJ_H
 #define INSJ_H
 #include "../Ins/Ins.h"
+#include "../mips_cpu_def.h"
+#include "../mips_cpu_private.h"
 
 
 typedef mips_error (*FPJ)(uint32_t);

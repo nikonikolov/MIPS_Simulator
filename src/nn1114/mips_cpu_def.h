@@ -4,6 +4,10 @@
 #define BLOCKSIZE 4
 #define REGS 32
 
+#define LOGLOW 	0
+#define LOGMIDDLE 	1
+#define LOGHIGH 	2
+
 struct mips_cpu_impl{
 
 	uint32_t PC;

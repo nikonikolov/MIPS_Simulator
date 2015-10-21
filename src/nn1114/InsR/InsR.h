@@ -4,6 +4,8 @@
 #ifndef INSR_H
 #define INSR_H
 #include "../Ins/Ins.h"
+#include "../mips_cpu_def.h"
+#include "../mips_cpu_private.h"
 
 
 typedef mips_error (*FPR)(uint32_t, uint32_t, uint64_t&, uint8_t);
