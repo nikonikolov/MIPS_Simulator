@@ -40,6 +40,40 @@ mips_error mips_cpu_get_npc(
 }
 
 
+/* ************************* WORD EXTRACTION *************************** */
+uint8_t extr_opcode(uint32_t InsWord){
+	return ( (InsWord>>26) & 0x0000003F );
+}
+
+uint8_t extr_src1(uint32_t InsWord){
+    return ( (InsWord>> 21 ) & 0x0000001F );	 
+}
+
+uint8_t extr_src2(uint32_t InsWord){
+    return ( (InsWord>> 16 ) & 0x0000001F );	 
+}
+
+uint8_t extr_dest(uint32_t InsWord){
+    return ( (InsWord>> 11 ) & 0x0000001F );	 
+}
+
+uint8_t extr_shift(uint32_t InsWord){
+    return ( (InsWord>> 6 ) & 0x0000001F );	 
+}
+
+// Extract function type of R-type instruction 
+uint8_t extr_fn(uint32_t InsWord){
+	return (InsWord & 0x0000003F );
+}
+
+uint16_t extr_imm(uint32_t InsWord){
+	return (InsWord & 0x0000FFFF );
+}
+
+uint32_t extr_jarg(uint32_t InsWord){
+	return (InsWord & 0x03FFFFFF );
+}
+
 /* ************************* DEBUGGING *************************** */
 
 
@@ -71,3 +105,5 @@ void printBin(mips_cpu_h state, uint32_t InsWord){
 	}
 	fprintf(state->logDst, "\n");
 }
+
+

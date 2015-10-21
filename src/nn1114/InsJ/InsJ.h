@@ -4,6 +4,7 @@
 #ifndef INSJ_H
 #define INSJ_H
 #include "../Ins/Ins.h"
+//#include "../mips_cpu_ins_decode.h"
 
 typedef mips_error (*FPJ)(uint32_t);
 
@@ -16,17 +17,26 @@ public:
 	Ins<FnPtrSpec>(opcode_in, name_in, FnImpl_in) {}
 	
 
-	void debugPrintIns(mips_cpu_h state, uint32_t InsWord){
+	mips_error debugPrintIns(mips_cpu_h state, uint32_t InsWord){
 
-		if(state->logLevel == LOGMIDDLE){
-        	/*fprintf(state->logDst, "R-Type : dst=%u, src1=%u, src2=%u, shift=%u, function=%u.\n  instr=%08x\n",
-            							dst, src1, src2, shift, function, instruction
-        	);*/
-    	}
+		if(state->logLevel >= LOGLOW){
+			uint8_t code = extr_fn(InsWord);
+			fprintf(state->logDst, "WordCode=0x%x, FoundCode=0x%x, FoundIns=%s\n", code, Ins<FnPtrSpec>::opcode, Ins<FnPtrSpec>::name);
+			
+			if(state->logLevel >= LOGMIDDLE){
+        		uint32_t jarg = extr_jarg(InsWord);
+			
+        		fprintf(state->logDst, "J-Type : arg=%u\n", jarg);
+    		
+    			if (state->logLevel >= LOGHIGH){
 
-    	else if (state->logLevel == LOGHIGH){
-    		debugPrintWord(state, InsWord);
-    	}
+    				mips_error err = printPC(state);
+    				if(!err) return err;
+
+    				debugPrintWord(state, InsWord);
+    			}
+    		}
+		}
 	}
 
 };

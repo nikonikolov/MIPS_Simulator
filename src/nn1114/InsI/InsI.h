@@ -16,17 +16,31 @@ public:
 	Ins<FnPtrSpec>(opcode_in, name_in, FnImpl_in) {}
 	
 
-	void debugPrintIns(mips_cpu_h state, uint32_t InsWord){
+	mips_error debugPrintIns(mips_cpu_h state, uint32_t InsWord){
 
-		if(state->logLevel == LOGMIDDLE){
-        	/*fprintf(state->logDst, "R-Type : dst=%u, src1=%u, src2=%u, shift=%u, function=%u.\n  instr=%08x\n",
-            							dst, src1, src2, shift, function, instruction
-        	);*/
-    	}
+		if(state->logLevel >= LOGLOW){
+			uint8_t code = extr_opcode(InsWord);
+			fprintf(state->logDst, "WordCode=0x%x, FoundCode=0x%x, FoundIns=%s\n", code, Ins<FnPtrSpec>::opcode, Ins<FnPtrSpec>::name);
+			
+			if(state->logLevel >= LOGMIDDLE){
+        		uint8_t rs = extr_src1(InsWord);
+				uint8_t rd = extr_src2(InsWord);
+				uint16_t imm = extr_imm(InsWord);
+			
+        		fprintf(state->logDst, "I-Type : rs=%u, imm=%u, rd=%u\n", rs, imm, rd);
+    		
+    			if (state->logLevel >= LOGHIGH){
 
-    	else if (state->logLevel == LOGHIGH){
-    		debugPrintWord(state, InsWord);
-    	}
+    				uint32_t src1;
+    				mips_error err = mips_cpu_get_register( state, rs, &src1);
+    				if(!err) return err;
+
+    				fprintf(state->logDst, " src1=%u\n", src1);
+
+    				debugPrintWord(state, InsWord);
+    			}
+    		}
+		}
 	}
 
 };

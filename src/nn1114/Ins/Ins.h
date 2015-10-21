@@ -7,6 +7,7 @@
 #include "../mips_cpu_def.h"
 #include "../mips_cpu_private.h"
 
+
 template <class FNPTR>
 class Ins{
 
@@ -28,7 +29,7 @@ public:
 		return FnImpl;
 	}
 
-	virtual void debugPrintIns(mips_cpu_h state, uint32_t InsWord) =0;
+	virtual mips_error debugPrintIns(mips_cpu_h state, uint32_t InsWord) =0;
 
 protected:
 	uint8_t opcode;

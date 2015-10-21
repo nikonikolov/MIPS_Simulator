@@ -9,6 +9,8 @@
 
 using namespace std;
 
+/* ************************* CPU RELATED *************************** */
+
 uint32_t change_endian(uint32_t word);
 
 mips_error advance_pc (mips_cpu_h state, uint32_t offset);
@@ -21,6 +23,17 @@ mips_error mips_cpu_get_npc(
 	mips_cpu_h state,	//!< Valid (non-empty) handle to a CPU
 	uint32_t *npc		//!< Where to write the byte address too
 );
+
+/* ************************* WORD EXTRACTION *************************** */
+
+uint8_t extr_opcode(uint32_t InsWord);
+uint8_t extr_src1(uint32_t InsWord);
+uint8_t extr_src2(uint32_t InsWord);
+uint8_t extr_dest(uint32_t InsWord);
+uint8_t extr_shift(uint32_t InsWord);
+uint8_t extr_fn(uint32_t InsWord);
+uint16_t extr_imm(uint32_t InsWord);
+uint32_t extr_jarg(uint32_t InsWord);
 
 
 /* ************************* DEBUGGING *************************** */
@@ -48,4 +61,7 @@ mips_error printPC(mips_cpu_h state);
 if(state->logLevel >= 1){
                 fprintf(state->logDst, "addu %u, %u, %u.\n", dst, src1, src2);
             }*/
+
+
+
 #endif

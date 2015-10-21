@@ -8,6 +8,8 @@
 #include "InsR/InsR.h"
 #include "InsJ/InsJ.h"
 #include "mips_cpu_ins_set.h"
+#include "mips_cpu_private.h"
+
 
 using namespace std;
 
@@ -43,13 +45,7 @@ mips_error decodeJ(mips_cpu_h state, uint32_t InsWord);
 
 
 
-uint8_t extr_opcode(uint32_t InsWord);
-uint8_t extr_src1(uint32_t InsWord);
-uint8_t extr_src2(uint32_t InsWord);
-uint8_t extr_dest(uint32_t InsWord);
-uint8_t extr_shift(uint32_t InsWord);
-uint8_t extr_fn(uint32_t InsWord);
-uint16_t extr_imm(uint32_t InsWord);
+
 
 
 mips_error extr_R(mips_cpu_h state, uint32_t InsWord, uint32_t& src1, uint32_t& src2, uint8_t& rd, uint8_t& shift);

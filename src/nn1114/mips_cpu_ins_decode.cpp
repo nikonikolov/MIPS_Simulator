@@ -34,35 +34,7 @@ FP insType(uint8_t instype){
 	else return &decodeI; 
 }
 
-// Extract opcode of instruction word
-uint8_t extr_opcode(uint32_t InsWord){
-	return ( (InsWord>>26) & 0x0000003F );
-}
 
-uint8_t extr_src1(uint32_t InsWord){
-    return ( (InsWord>> 21 ) & 0x0000001F );	 
-}
-
-uint8_t extr_src2(uint32_t InsWord){
-    return ( (InsWord>> 16 ) & 0x0000001F );	 
-}
-
-uint8_t extr_dest(uint32_t InsWord){
-    return ( (InsWord>> 11 ) & 0x0000001F );	 
-}
-
-uint8_t extr_shift(uint32_t InsWord){
-    return ( (InsWord>> 6 ) & 0x0000001F );	 
-}
-
-// Extract function type of R-type instruction 
-uint8_t extr_fn(uint32_t InsWord){
-	return (InsWord & 0x0000003F );
-}
-
-uint16_t extr_imm(uint32_t InsWord){
-	return (InsWord & 0x0000FFFF );
-}
 
 
 mips_error extr_R(mips_cpu_h state, uint32_t InsWord, uint32_t& src1, uint32_t& src2, uint8_t& rd, uint8_t& shift){
