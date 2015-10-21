@@ -3,6 +3,7 @@
 
 #include "mips.h"		// required for var types
 #include <vector>
+#include "Ins/Ins.h"
 #include "InsI/InsI.h"
 #include "InsR/InsR.h"
 #include "InsJ/InsJ.h"

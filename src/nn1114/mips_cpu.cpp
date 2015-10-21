@@ -10,22 +10,34 @@ mips_cpu_h mips_cpu_create(mips_mem_h mem){
 	cpuPtr->nPC = cpuPtr->PC + BLOCKSIZE;
 	for(int i=0; i<REGS; i++) cpuPtr->regs[i] = 0;
 	cpuPtr->memPtr = mem;
+	
+	mips_cpu_set_debug_level(cpuPtr, 0, NULL);
 
 	return cpuPtr;
 }
+
 
 // YOU NEED TO ACCOUNT FOR UNSUCCESSFUL CASE HERE
 mips_error mips_cpu_reset(mips_cpu_h state){
 	
 	if(state==NULL)	return mips_ErrorInvalidArgument;
 
-	else{
-		state->PC = 0;
-		state->nPC = state->PC + BLOCKSIZE;
+	state->PC = 0;
+	state->nPC = state->PC + BLOCKSIZE;
 
-		for(int i=0; i<REGS; i++) state->regs[i] = 0;
-		return mips_Success;
-	}
+	for(int i=0; i<REGS; i++) state->regs[i] = 0;
+
+	mips_cpu_set_debug_level(state, 0, NULL);
+			
+	return mips_Success;
+}
+
+
+mips_error mips_cpu_set_debug_level(mips_cpu_h state, unsigned level, FILE *dest)
+{
+    state->logLevel = level;
+    state->logDst = dest;
+    return mips_Success;
 }
 
 

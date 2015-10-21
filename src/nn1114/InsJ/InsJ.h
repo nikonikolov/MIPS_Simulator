@@ -3,19 +3,20 @@
 
 #ifndef INSJ_H
 #define INSJ_H
-#include "mips.h"
+#include "../Ins/Ins.h"
+
 
 typedef mips_error (*FPJ)(uint32_t);
 
-class InsJ{
+class InsJ : public Ins {
 public:
-	InsJ(uint8_t opcode_in, FPJ FnImpl_in);
+	InsJ(uint8_t opcode_in, char* name_in, FPJ FnImpl_in);
 
-	uint8_t get_opcode() const;
 	FPJ get_FnImpl() const;
+	
+	void debugPrintIns(mips_cpu_h state, uint32_t InsWord);
 
-protected:
-	uint8_t opcode;
+private:
 	FPJ FnImpl;
 };
 

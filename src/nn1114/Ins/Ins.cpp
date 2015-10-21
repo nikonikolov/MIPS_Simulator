@@ -1,11 +1,11 @@
 #include "Ins.h"
 
-Ins::Ins(uint8_t opcode_in, FP FnImpl_in) :
-	opcode(opcode_in), FnImpl(FnImpl_in) {}
+Ins::Ins (uint8_t opcode_in, char* name_in):
+	opcode(opcode_in), name(name_in) {}
 
 
-FP Ins::get_FnImpl() const{
-	return FnImpl;
+char* Ins::get_name(){
+	return name;
 }
 
 

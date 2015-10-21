@@ -1,18 +1,18 @@
 #include "mips_cpu_ins_decode.h"
 
 // R-type instuctions
-const vector<InsR> PtrR = {	InsR(0x20 /*100000*/, &add), 
-							InsR(0x21 /*100001*/, &addu) 
+const vector<InsR> PtrR = {	InsR(0x20 /*100000*/, "add", &add), 
+							InsR(0x21 /*100001*/, "addu", &addu) 
 						 };
 
 // I-type instructions
-const vector<InsI> PtrI = { InsI(0x08 /*001000*/, &addi), 
-							InsI(0x09 /*001001*/, &addiu) 
+const vector<InsI> PtrI = { InsI(0x08 /*001000*/, "addi", &addi), 
+							InsI(0x09 /*001001*/, "addiu", &addiu) 
 						 };
 
 // J-type instructions
-const vector<InsJ> PtrJ = { InsJ(0x02 /*000001*/, &j), 
-							InsJ(0x03 /*000011*/, &jal) 
+const vector<InsJ> PtrJ = { InsJ(0x02 /*000001*/, "j", &j), 
+							InsJ(0x03 /*000011*/, "jal", &jal) 
 						 };
 
 
@@ -64,13 +64,6 @@ uint16_t extr_imm(uint32_t InsWord){
 	return (InsWord & 0x0000FFFF );
 }
 
-
-//void extr_R(uint32_t InsWord, uint8_t& src1, uint8_t& src2, uint8_t& dest, uint8_t& shift /*=0*/){
-/*	uint8_t src1 = extr_src1(InsWord);
-	uint8_t src2 = extr_src1(InsWord);
-	uint8_t dest = extr_dest(InsWord);
-	uint8_t shift = extr_shift(InsWord);
-}*/
 
 mips_error extr_R(mips_cpu_h state, uint32_t InsWord, uint32_t& src1, uint32_t& src2, uint8_t& rd, uint8_t& shift){
 

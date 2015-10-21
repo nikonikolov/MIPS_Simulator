@@ -5,18 +5,18 @@
 #define INS_H
 #include "mips.h"
 
-typedef mips_error (*FP)(mips_cpu_h, uint32_t);
-
 class Ins{
+
 public:
-	Ins(uint8_t opcode_in, FP FnImpl_in);
 
-	FP get_FnImpl() const;
+	Ins(uint8_t opcode_in, char* name_in);
 	uint8_t get_opcode() const;
+	char* get_name();
+	virtual void debugPrintIns(mips_cpu_h state, uint32_t InsWord) =0;
 
-private:
+protected:
 	uint8_t opcode;
-	FP FnImpl;
+	char* name; 
 };
 
 #endif

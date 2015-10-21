@@ -1,22 +1,22 @@
 
 /* Definition R-type (instruction) with opcode and pointer to function implementation of actual instruction*/
 
+#ifndef INSR_H
+#define INSR_H
+#include "../Ins/Ins.h"
 
-#ifndef InsR_H
-#define InsR_H
-#include "mips.h"
 
 typedef mips_error (*FPR)(uint32_t, uint32_t, uint64_t&, uint8_t);
 
-class InsR{
-public:
-	InsR(uint8_t opcode_in, FPR FnImpl_in);
+class InsR : public Ins {
+public:	
+	InsR(uint8_t opcode_in, char* name_in, FPR FnImpl_in);
 
-	uint8_t get_opcode() const;
 	FPR get_FnImpl() const;
 
-protected:
-	uint8_t opcode;
+	void debugPrintIns(mips_cpu_h state, uint32_t InsWord);
+
+private:
 	FPR FnImpl;
 };
 
