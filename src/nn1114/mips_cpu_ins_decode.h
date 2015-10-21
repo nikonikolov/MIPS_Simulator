@@ -16,22 +16,24 @@ using namespace std;
 #define J 2
 
 typedef mips_error (*FP)(mips_cpu_h, uint32_t);
+typedef InsR<FPR> InsObjR;
 
-extern const vector<InsR> PtrR;
-extern const vector<InsI> PtrI;
-extern const vector<InsJ> PtrJ;
+extern const vector<InsObjR> PtrR;
+extern const vector<InsObjI> PtrI;
+extern const vector<InsObjJ> PtrJ;
 
 
-// Return pointer to an implementation of a function 
-/*template <class FnPtrType, class ObjType>
-FnPtrType findIns(uint8_t opcode, const vector<ObjType>& InsStruct){
+template <class InsObjType>
+InsObjType* findIns(uint8_t opcode, const vector<InsObjType>& InsStruct){
 	for(int i=0; i<InsStruct.size(); i++){
-		if(opcode == InsStruct[i].get_opcode() ) return InsStruct[i].get_FnImpl();
+		if(opcode == InsStruct[i].get_opcode() ){
+			return &(InsStruct[i]);
+		}
 	}
 	return NULL;
-}*/
+}
 
-template <class FnPtrType, class ObjType>
+/*template <class FnPtrType, class ObjType>
 void findIns(uint8_t opcode, const vector<ObjType>& InsStruct, FnPtrType& FnImpl){
 	for(int i=0; i<InsStruct.size(); i++){
 		if(opcode == InsStruct[i].get_opcode() ){
@@ -40,7 +42,7 @@ void findIns(uint8_t opcode, const vector<ObjType>& InsStruct, FnPtrType& FnImpl
 		}
 	}
 	FnImpl = NULL;
-}
+}*/
 
 FP decodeType(uint32_t InsWord);
 FP insType(uint8_t instype);
