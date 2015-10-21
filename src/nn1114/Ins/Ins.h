@@ -4,6 +4,8 @@
 #ifndef INS_H
 #define INS_H
 #include "mips.h"
+#include "../mips_cpu_def.h"
+#include "../mips_cpu_private.h"
 
 template <class FNPTR>
 class Ins{

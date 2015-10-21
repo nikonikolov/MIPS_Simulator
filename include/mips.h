@@ -7,6 +7,5 @@
 #include "mips_mem.h"
 #include "mips_cpu.h"
 #include "mips_test.h"
-#include "../src/nn1114/mips_cpu_private.h"
     
 #endif

@@ -24,7 +24,7 @@ extern const vector<InsObjJ> PtrJ;
 
 
 template <class InsObjType>
-InsObjType* findIns(uint8_t opcode, const vector<InsObjType>& InsStruct){
+const InsObjType* findIns(uint8_t opcode, const vector<InsObjType>& InsStruct){
 	for(int i=0; i<InsStruct.size(); i++){
 		if(opcode == InsStruct[i].get_opcode() ){
 			return &(InsStruct[i]);

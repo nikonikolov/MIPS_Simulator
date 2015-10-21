@@ -1,8 +1,8 @@
 #include "mips_cpu_ins_decode.h"
 
 // R-type instuctions
-const vector<InsR<FPR>> PtrR = {	InsR<FPR>(0x20 /*100000*/, "add", &add), 
-								InsR<FPR>(0x21 /*100001*/, "addu", &addu) 
+const vector<InsObjR> PtrR = {	InsObjR(0x20 /*100000*/, "add", &add), 
+								InsObjR(0x21 /*100001*/, "addu", &addu) 
 						 	 };
 
 // I-type instructions
@@ -83,10 +83,10 @@ mips_error extr_R(mips_cpu_h state, uint32_t InsWord, uint32_t& src1, uint32_t& 
 mips_error decodeR(mips_cpu_h state, uint32_t InsWord){
 
 	// find instruction
-	InsObjR InsObj = findIns( extr_fn(InsWord), PtrR);
+	const InsObjR *InsObj = findIns( extr_fn(InsWord), PtrR);
 	if(InsObj==NULL) return mips_ErrorNotImplemented;
 	
-	FPR FnImpl = InsObj.get_FnImlp();
+	FPR FnImpl = InsObj->get_FnImpl();
 
 	// decode instruction
 	uint32_t src1, src2;
@@ -120,10 +120,10 @@ mips_error extr_I(mips_cpu_h state, uint32_t InsWord, uint32_t& src1, uint16_t& 
 mips_error decodeI(mips_cpu_h state, uint32_t InsWord){
 
 	// find instruction
-	InsObjI InsObj = findIns( extr_opcode(InsWord), PtrR);
+	const InsObjI *InsObj = findIns( extr_opcode(InsWord), PtrI);
 	if(InsObj==NULL) return mips_ErrorNotImplemented;
 	
-	FPI FnImpl = InsObj.get_FnImlp();
+	FPI FnImpl = InsObj->get_FnImpl();
 
 	// decode instruction
 	uint32_t src1;
@@ -145,10 +145,11 @@ mips_error decodeI(mips_cpu_h state, uint32_t InsWord){
 
 mips_error decodeJ(mips_cpu_h state, uint32_t InsWord){
 	
-	//FPJ FnImpl = findIns( extr_opcode(InsWord), PtrJ);	
-	FPJ FnImpl;
-	findIns( extr_opcode(InsWord), PtrJ, FnImpl);
-	if(FnImpl==NULL) return mips_ErrorNotImplemented;
+	// find instruction
+	const InsObjJ *InsObj = findIns( extr_opcode(InsWord), PtrJ);
+	if(InsObj==NULL) return mips_ErrorNotImplemented;
 	
+	FPJ FnImpl = InsObj->get_FnImpl();
+
 	return mips_Success;
 }

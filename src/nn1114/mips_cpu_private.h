@@ -7,9 +7,6 @@
 #include "mips.h"	// required for var types
 #include "mips_cpu_def.h"
 
-#define LOGMLOW 	0
-#define LOGMIDDLE 	1
-#define LOGHIGH 	2
 using namespace std;
 
 uint32_t change_endian(uint32_t word);

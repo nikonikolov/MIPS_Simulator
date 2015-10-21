@@ -5,7 +5,7 @@
 #define INSR_H
 #include "../Ins/Ins.h"
 
-typedef mips_error (*FPR)(uint32_t, uint16_t, uint64_t&);
+typedef mips_error (*FPR)(uint32_t, uint32_t, uint64_t&, uint8_t);
 
 template<class FnPtrSpec>
 class InsR : public Ins<FnPtrSpec> {

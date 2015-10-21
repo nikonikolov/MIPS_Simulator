@@ -5,7 +5,7 @@
 #define INSJ_H
 #include "../Ins/Ins.h"
 
-typedef mips_error (*FPJ)(uint32_t, uint16_t, uint64_t&);
+typedef mips_error (*FPJ)(uint32_t);
 
 template<class FnPtrSpec>
 class InsJ : public Ins<FnPtrSpec> {
