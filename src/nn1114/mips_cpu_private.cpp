@@ -15,3 +15,14 @@ mips_error advance_pc (mips_cpu_h state, uint32_t offset){
 
 	return mips_Success;
 }
+
+mips_error check_overflow(uint64_t result){
+	if(result>0xFFFFFFFF) return mips_ExceptionArithmeticOverflow;
+	else return mips_Success;
+}
+
+
+mips_error shift_check(uint8_t shift){
+    if(shift!=0x00) return mips_ExceptionInvalidInstruction;
+    return mips_Success;
+}

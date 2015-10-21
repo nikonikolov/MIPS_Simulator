@@ -3,7 +3,9 @@
 
 #include "mips.h"		// required for var types
 #include <vector>
-#include "Ins/Ins.h"
+#include "InsI/InsI.h"
+#include "InsR/InsR.h"
+#include "InsJ/InsJ.h"
 #include "mips_cpu_ins_set.h"
 
 using namespace std;
@@ -12,19 +14,54 @@ using namespace std;
 #define I 1
 #define J 2
 
+typedef mips_error (*FP)(mips_cpu_h, uint32_t);
 
-extern const vector<Ins>* HashT[3];
-extern const vector<Ins> PtrR;
-extern const vector<Ins> PtrI;
-extern const vector<Ins> PtrJ;
+extern const vector<InsR> PtrR;
+extern const vector<InsI> PtrI;
+extern const vector<InsJ> PtrJ;
 
-FP findIns(uint8_t opcode, const vector<Ins>*& InsStruct);
 
-int hashfn(uint8_t instype);
+// Return pointer to an implementation of a function 
+/*template <class FnPtrType, class ObjType>
+FnPtrType findIns(uint8_t opcode, const vector<ObjType>& InsStruct){
+	for(int i=0; i<InsStruct.size(); i++){
+		if(opcode == InsStruct[i].get_opcode() ) return InsStruct[i].get_FnImpl();
+	}
+	return NULL;
+}*/
 
-mips_error decode(mips_cpu_h state, uint32_t InsWord);
+template <class FnPtrType, class ObjType>
+void findIns(uint8_t opcode, const vector<ObjType>& InsStruct, FnPtrType& FnImpl){
+	for(int i=0; i<InsStruct.size(); i++){
+		if(opcode == InsStruct[i].get_opcode() ){
+			FnImpl =InsStruct[i].get_FnImpl();
+			return ;
+		}
+	}
+	FnImpl = NULL;
+}
 
-uint8_t extr_R_fn(uint32_t InsWord);
+FP decodeType(uint32_t InsWord);
+FP insType(uint8_t instype);
+
+
+mips_error decodeR(mips_cpu_h state, uint32_t InsWord);
+mips_error decodeI(mips_cpu_h state, uint32_t InsWord);
+mips_error decodeJ(mips_cpu_h state, uint32_t InsWord);
+
+
+
 uint8_t extr_opcode(uint32_t InsWord);
+uint8_t extr_src1(uint32_t InsWord);
+uint8_t extr_src2(uint32_t InsWord);
+uint8_t extr_dest(uint32_t InsWord);
+uint8_t extr_shift(uint32_t InsWord);
+uint8_t extr_fn(uint32_t InsWord);
+uint16_t extr_imm(uint32_t InsWord);
+
+
+mips_error extr_R(mips_cpu_h state, uint32_t InsWord, uint32_t& src1, uint32_t& src2, uint8_t& rd, uint8_t& shift);
+
+
 
 #endif

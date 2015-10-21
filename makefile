@@ -7,6 +7,7 @@ CPPFLAGS += -I include
 
 CFLAGS	 += -std=c99
 CXXFLAGS += -std=c++11
+CXXFLAGS += -w
 
 # Force the inclusion of C++ standard libraries
 LDLIBS += -lstdc++

@@ -5,7 +5,7 @@
 #define INS_H
 #include "mips.h"
 
-typedef void (*FP)(mips_cpu_h, uint32_t);
+typedef mips_error (*FP)(mips_cpu_h, uint32_t);
 
 class Ins{
 public:
