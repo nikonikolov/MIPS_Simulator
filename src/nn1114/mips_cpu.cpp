@@ -106,22 +106,17 @@ mips_error mips_cpu_step(
 	// convert from big endian
 	InsWord = change_endian(InsWord);
 
-	// declare pointer to function implementation
-	FP FnImpl;
+	// Find instruction type
+	FP FnImpl = decodeType(InsWord);
 
-	// decode instruction
-	err = decode(InsWord, FnImpl);
-	if(!err) return err;
-
-	// execute instruction
-	FnImpl(state, InsWord);
-
+	// decode and execute instruction
+	err = FnImpl(state, InsWord);
+	if(!err) return err;		// SHOULD YOU ADVANCE PC WHEN EXCEPTION OCCURS?
 
 	// DON'T FORGET TO ACCOUNT FOR BRANCHES
 
 	advance_pc(state, (uint32_t)BLOCKSIZE);
-	return mips_Success;
-	
+	return mips_Success;	
 }
 
 
