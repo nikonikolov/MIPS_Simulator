@@ -31,6 +31,6 @@ public:
 
 };
 
-//typedef InsR<FPR> InsObjR;
+typedef InsR<FPR> InsObjR;
 
 #endif

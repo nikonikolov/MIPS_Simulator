@@ -16,7 +16,6 @@ using namespace std;
 #define J 2
 
 typedef mips_error (*FP)(mips_cpu_h, uint32_t);
-typedef InsR<FPR> InsObjR;
 
 extern const vector<InsObjR> PtrR;
 extern const vector<InsObjI> PtrI;
@@ -33,16 +32,6 @@ const InsObjType* findIns(uint8_t opcode, const vector<InsObjType>& InsStruct){
 	return NULL;
 }
 
-/*template <class FnPtrType, class ObjType>
-void findIns(uint8_t opcode, const vector<ObjType>& InsStruct, FnPtrType& FnImpl){
-	for(int i=0; i<InsStruct.size(); i++){
-		if(opcode == InsStruct[i].get_opcode() ){
-			FnImpl =InsStruct[i].get_FnImpl();
-			return ;
-		}
-	}
-	FnImpl = NULL;
-}*/
 
 FP decodeType(uint32_t InsWord);
 FP insType(uint8_t instype);
