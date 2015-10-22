@@ -1,6 +1,6 @@
 #include "test_mips_private.h"
 
-uint32_t BuildR(uint32_t opcode /*=0*/, uint32_t rs, uint32_t rt, uint32_t rd, uint32_t shift, uint32_t fn){
+/*uint32_t BuildR(uint32_t opcode /, uint32_t rs, uint32_t rt, uint32_t rd, uint32_t shift, uint32_t fn){
     return
         (opcode << 26)  |   // opcode = 0
         (rs << 21)      |   // reg 1
@@ -24,41 +24,38 @@ uint32_t BuildJ(uint32_t opcode, uint32_t arg){
         (opcode << 26)  |   // opcode
         (fn << 0);          // argument
 }
+*/
 
-void checkWrap(mips_error err, char* msg){
-    if(err!=mips_Success){
-        fprintf(stderr,"%s\n", msg);
-        fprintf(stderr, "Error code: %u\n" err);
-        exit(1);
+/* ************************  MEMORY OPERATIONS ************************ */
+
+// Load a vector of instructions in memory
+mips_error loadMem(mips_mem_h mem, vector<InsCSV*>& InsObjPtrs){
+
+    for(int i=0; i<InsObjPtrs.size(); i++){
+        mips_error err = loadIns(mem, i*BLOCKSIZE - 1, InsObjPtrs[i]);
+        if(!err) return err; 
     }
+
+    return mips_Success;
 }
 
-void checkStep(mips_error err){
-    char* msg = "mips_cpu_step : failed."
-    checkWrap(err, msg);
-}
 
-void checkDebug(mips_error err){
-    char* msg = "mips_cpu_set_debug_level : failed."
-    checkWrap(err, msg);
-}
+// Load a single instruction in memory
+mips_error loadIns(mips_mem_h mem, uint32_t address, InsCSV* InsObj){
+    
+    // 1 - Build an instruction
+    uint32_t InsWord = InsObj->Build();
+    
+    InsWord = change_endian(InsWord);
+      
+    // Load in RAM  
+    err = mips_mem_write(
+        mem,                             //!< Handle to target memory
+        address,                         //!< Byte address to start transaction at
+        4,                               //!< Number of bytes to transfer
+        (uint8_t*)&(InsWord)             //!< Receives the target bytes
+    );
 
-void checkMemWrite(mips_error err){
-    char* msg = "mips_mem_write : failed."
-    checkWrap(err, msg);
-}
+    return checkMemWrite(err);
+} 
 
-void checkMemRead(mips_error err){
-    char* msg = "mips_mem_read : failed."
-    checkWrap(err, msg);
-}
-
-void checkRegSet(mips_error err){
-    char* msg = "mips_cpu_set_reg : failed."
-    checkWrap(err, msg);
-}
-
-void checkRegGet(mips_error err){
-    char* msg = "mips_cpu_get_reg : failed."
-    checkWrap(err, msg);
-}
