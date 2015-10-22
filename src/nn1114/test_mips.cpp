@@ -1,17 +1,22 @@
 #include "mips.h"
+#include "test_mips_private.h"
 
 int main()
 {
+    cout<<"Enter debug level"<<endl;
+    cout<<"DISABLED: 0"<<endl;
+    cout<<"LOW: 1"<<endl;
+    cout<<"MIDDLE: 2"<<endl;
+    cout<<"HIGH: 3"<<endl;
+    unsigned debuglvl;
+    cin>>debuglvl;
+    // debuglvl = 0;
     mips_mem_h mem=mips_mem_create_ram(4096, 4);
     
     mips_cpu_h cpu=mips_cpu_create(mem);
     
-    mips_error e=mips_cpu_set_debug_level(cpu, 4, stderr);
-    if(e!=mips_Success){
-        fprintf(stderr, "mips_cpu_set_debug_level : failed.\n");
-        exit(1);
-    }
-    
+    mips_error err=mips_cpu_set_debug_level(cpu, debuglvl, stderr);
+    checkDebug(err);
     
     mips_test_begin_suite();
 
@@ -20,53 +25,37 @@ int main()
     
     // 1 - Setup an instruction in ram
     // addu r3, r4, r5
-    uint32_t instr =
-        (0ul << 26) // opcode = 0
-        |
-        (4ul << 21) // srca = r4
-        |
-        (5ul << 16) // srcb = r5
-        |
-        (3ul << 11) // dst = r3
-        |
-        (0ul << 6) // shift = 0
-        |
-        (0x21 << 0);
+    uint32_t InsWord = BuildR(4,5,3,0, 0x21);
     
-    uint8_t buffer[4];
-    buffer[0]=(instr>>24)&0xFF;
-    buffer[1]=(instr>>16)&0xFF;
-    buffer[2]=(instr>>8)&0xFF;
-    buffer[3]=(instr>>0)&0xFF;
-    
-    e=mips_mem_write(
-        mem,	        //!< Handle to target memory
-        0,	            //!< Byte address to start transaction at
-        4,	            //!< Number of bytes to transfer
-        buffer	        //!< Receives the target bytes
+    InsWord = change_endian(InsWord);
+      
+    err = mips_mem_write(
+        mem,	                         //!< Handle to target memory
+        0,	                             //!< Byte address to start transaction at
+        4,	                             //!< Number of bytes to transfer
+        (uint8_t*)&(InsWord)	         //!< Receives the target bytes
     );
-    if(e!=mips_Success){
-        fprintf(stderr, "mips_mem_write : failed.\n");
-        exit(1);
-    }
+
+    checkMemWrite(err);
     
     // 2 - put register values in cpu
-    e=mips_cpu_set_register(cpu, 4, 40);
-    e=mips_cpu_set_register(cpu, 5, 50);
+    err = emips_cpu_set_register(cpu, 4, 40);
+    checkRegSet(err);
+    err = mips_cpu_set_register(cpu, 5, 50);
+    checkRegSet(err);
     
     // 3 - step CPU
-    e=mips_cpu_step(cpu);
-    if(e!=mips_Success){
-        fprintf(stderr, "mips_cpu_step : failed.\n");
-        exit(1);
-    }
+    err=mips_cpu_step(cpu);
+    checkStep(err);
     
     // 4 -Check the result
-    uint32_t got;
-    e=mips_cpu_get_register(cpu, 3, &got);
+    uint32_t result;
+
+    err = mips_cpu_get_register(cpu, 3, &result);
+    checkRegGet(err);
     
    
-    int passed = got == 40+50;
+    int passed = result == 40+50;
     
     mips_test_end_test(testId, passed, "50 + 50 != 90");
     
@@ -75,54 +64,38 @@ int main()
     
     // 1 - Setup an instruction in ram
     // addu r3, r4, r5
-    instr =
-        (0ul << 26) // opcode = 0
-        |
-        (4ul << 21) // srca = r4
-        |
-        (5ul << 16) // srcb = r5
-        |
-        (0ul << 11) // dst = r0
-        |
-        (0ul << 6) // shift = 0
-        |
-        (0x21 << 0);
+    InsWord = BuildR(4, 5, 0, 0, 0x21);
     
-    buffer[0]=(instr>>24)&0xFF;
-    buffer[1]=(instr>>16)&0xFF;
-    buffer[2]=(instr>>8)&0xFF;
-    buffer[3]=(instr>>0)&0xFF;
+    InsWord = change_endian(InsWord);
     
-    e=mips_mem_write(
-        mem,	        //!< Handle to target memory
-        0,	            //!< Byte address to start transaction at
-        4,	            //!< Number of bytes to transfer
-        buffer	        //!< Receives the target bytes
+    err = mips_mem_write(
+        mem,                             //!< Handle to target memory
+        0,                               //!< Byte address to start transaction at
+        4,                               //!< Number of bytes to transfer
+        (uint8_t*)&(InsWord)             //!< Receives the target bytes
     );
-    if(e!=mips_Success){
-        fprintf(stderr, "mips_mem_write : failed.\n");
-        exit(1);
-    }
+
+    checkMemWrite(err);
     
     // 2 - put register values in cpu
-    e=mips_cpu_set_register(cpu, 4, 40);
-    e=mips_cpu_set_register(cpu, 5, 50);
+    err = emips_cpu_set_register(cpu, 4, 40);
+    checkRegSet(err);
+    err = mips_cpu_set_register(cpu, 5, 50);
+    checkRegSet(err);
     
     // 3 - step CPU
-    e=mips_cpu_step(cpu);
-    if(e!=mips_Success){
-        fprintf(stderr, "mips_cpu_step : failed.\n");
-        exit(1);
-    }
+    err=mips_cpu_step(cpu);
+    checkStep(err);
     
     // 4 -Check the result
-    e=mips_cpu_get_register(cpu, 0, &got);
+
+    err = mips_cpu_get_register(cpu, 3, &result);
+    checkRegGet(err);
     
    
     passed = got == 0;
     
     mips_test_end_test(testId, passed, "r0 <> 0");
-    
     
     
     mips_test_end_suite();

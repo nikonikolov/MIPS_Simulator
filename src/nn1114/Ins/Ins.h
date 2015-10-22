@@ -29,7 +29,7 @@ public:
 		return FnImpl;
 	}
 
-	virtual mips_error debugPrintIns(mips_cpu_h state, uint32_t InsWord) =0;
+	virtual mips_error debugIns(mips_cpu_h state, uint32_t InsWord, uint64_t result) const =0;
 
 protected:
 	uint8_t opcode;

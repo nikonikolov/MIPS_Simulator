@@ -72,6 +72,9 @@ mips_error decodeR(mips_cpu_h state, uint32_t InsWord){
 	mips_error err = FnImpl(src1, src2, result, shift);
 	if(!err) return err;
 
+	// print if logLevel is set
+	err = InsObj->debugIns(state, InsWord, result);
+	
 	// write to register
 	return mips_cpu_set_register(state, rd, (uint32_t)result);
 }
@@ -109,6 +112,9 @@ mips_error decodeI(mips_cpu_h state, uint32_t InsWord){
 	// execute instruction
 	mips_error err = FnImpl(src1, imm, result);
 	if(!err) return err;
+
+	// print if logLevel is set
+	err = InsObj->debugIns(state, InsWord, result);
 
 	// write to register
 	return mips_cpu_set_register(state, rd, (uint32_t)result);

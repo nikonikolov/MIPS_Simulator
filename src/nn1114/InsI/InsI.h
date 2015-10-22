@@ -15,8 +15,7 @@ public:
 	InsI(uint8_t opcode_in, char* name_in, FnPtrSpec FnImpl_in):
 	Ins<FnPtrSpec>(opcode_in, name_in, FnImpl_in) {}
 	
-
-	mips_error debugPrintIns(mips_cpu_h state, uint32_t InsWord){
+	mips_error debugIns(mips_cpu_h state, uint32_t InsWord, uint64_t result) const {
 
 		if(state->logLevel >= LOGLOW){
 			uint8_t code = extr_opcode(InsWord);
@@ -28,6 +27,7 @@ public:
 				uint16_t imm = extr_imm(InsWord);
 			
         		fprintf(state->logDst, "I-Type : rs=%u, imm=%u, rd=%u\n", rs, imm, rd);
+        		fprintf(state->logDst, "Calculated Result=%u\n", result);
     		
     			if (state->logLevel >= LOGHIGH){
 
@@ -41,6 +41,7 @@ public:
     			}
     		}
 		}
+		return mips_Success;
 	}
 
 };

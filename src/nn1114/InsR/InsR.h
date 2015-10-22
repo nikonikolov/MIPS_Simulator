@@ -17,7 +17,7 @@ public:
 	Ins<FnPtrSpec>(opcode_in, name_in, FnImpl_in) {}
 	
 
-	mips_error debugPrintIns(mips_cpu_h state, uint32_t InsWord){
+	mips_error debugIns(mips_cpu_h state, uint32_t InsWord, uint64_t result) const{
 
 		if(state->logLevel >= LOGLOW){
 			uint8_t code = extr_fn(InsWord);
@@ -30,6 +30,7 @@ public:
 				uint8_t shift = extr_shift(InsWord);
 			
         		fprintf(state->logDst, "R-Type : rs=%u, rt=%u, rd=%u, shift=%u\n", rs, rt, rd, shift);
+        		fprintf(state->logDst, "Calculated Result=%u\n", result);
     		
     			if (state->logLevel >= LOGHIGH){
 
@@ -45,6 +46,7 @@ public:
     			}
     		}
 		}
+		return mips_Success;
 	}
 
 };
