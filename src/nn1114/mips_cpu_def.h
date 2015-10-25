@@ -1,12 +1,15 @@
 #ifndef mips_definition
 #define mips_definition
 
-#define BLOCKSIZE 4
-#define REGS 32
+#include "mips.h"
 
-#define LOGLOW 	0
-#define LOGMIDDLE 	1
-#define LOGHIGH 	2
+#define BLOCKSIZE 	4
+#define REGS 		32
+
+#define LOGLOW 		1
+#define LOGMIDDLE 	2
+#define LOGHIGH 	3
+#define LOGERROR	1
 
 struct mips_cpu_impl{
 

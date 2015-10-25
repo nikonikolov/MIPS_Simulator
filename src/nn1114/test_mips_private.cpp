@@ -1,30 +1,114 @@
 #include "test_mips_private.h"
 
-/*uint32_t BuildR(uint32_t opcode /, uint32_t rs, uint32_t rt, uint32_t rd, uint32_t shift, uint32_t fn){
-    return
-        (opcode << 26)  |   // opcode = 0
-        (rs << 21)      |   // reg 1
-        (rt << 16)      |   // reg 2
-        (rd << 11)      |   // dest reg
-        (shift << 6)    |   // shift
-        (fn << 0);          // fn code
+/*static vector<string>* readLine(ifstream& infile){
+
+    vector<string> LineRead; 
+    
+    string line;
+    getline(infile,line);
+
+    stringstream lineStream(line);
+    string cell;
+
+    while(getline(lineStream,cell,','))
+    {
+        LineRead.push_back(cell);
+    }
+
+    return &LineRead;
+}*/
+static uint8_t tohex(char* number){
+    uint8_t result;
+
+    stringstream ss;
+    ss << hex << number;
+    ss >> result;
+
+    return result;
+}   
+        
+
+static void parseIns(const CSVRow& RowObj, vector<InsCSV*>& InsObjPtrs){
+    int size = RowObj.size();
+    InsCSV* InsCSVPtr;
+
+    for(int i=0; i<RowObj.size();i++){
+            cout<<RowObj[i]<<endl;
+        }
+
+    if(size==11){       // R-type instruction
+        InsCSVPtr = new InsRCSV(RowObj[0],  tohex(RowObj[1]), (uint8_t)(atoi(RowObj[2])), (uint8_t)(atoi(RowObj[3])), 
+                                            (uint8_t)(atoi(RowObj[4])), (uint8_t)(atoi(RowObj[5])), (uint8_t)(atoi(RowObj[6])),
+                                            (uint32_t)(atoi(RowObj[7])), (uint32_t)(atoi(RowObj[8])), (uint32_t)(atoi(RowObj[9])), 
+                                            RowObj[10] );
+        InsObjPtrs.push_back(InsCSVPtr);
+    }
+
+    else if(size==8){   // I-type instruction
+        InsCSVPtr = new InsICSV(RowObj[0],  tohex(RowObj[1]), (uint8_t)(atoi(RowObj[2])), (uint8_t)(atoi(RowObj[3])), 
+                                            (uint16_t)(atoi(RowObj[4])), (uint32_t)(atoi(RowObj[5])), (uint32_t)(atoi(RowObj[6])),
+                                            RowObj[7] );
+        InsObjPtrs.push_back(InsCSVPtr);
+    }
+
+    else if(size==5){   // J-type instruction
+        InsCSVPtr = new InsJCSV(RowObj[0],  tohex(RowObj[1]), (uint32_t)(atoi(RowObj[2])), (uint32_t)(atoi(RowObj[3])),
+                                            RowObj[4] );
+        InsObjPtrs.push_back(InsCSVPtr);
+    }
+
+    else{
+        cout<<"INVALID INSTRUCTION"<<endl;
+        for(int i=0; i<size; i++){
+            cout<<RowObj[i];
+        }
+        cout<<endl;
+    }
 }
 
-
-uint32_t BuildI(uint32_t opcode, uint32_t rs, uint32_t rd, uint32_t imm){
-    return
-        (opcode << 26)  |   // opcode
-        (rs << 21)      |   // source reg
-        (rd << 16)      |   // dest reg
-        (imm << 0);         // immediate const
-}
-
-uint32_t BuildJ(uint32_t opcode, uint32_t arg){
-    return
-        (opcode << 26)  |   // opcode
-        (fn << 0);          // argument
+/*
+static uint32_t change_endian(uint32_t word){
+     return ((word << 24) & 0xff000000) |
+            ((word <<  8) & 0x00ff0000) |
+            ((word >>  8) & 0x0000ff00) |
+            ((word >> 24) & 0x000000ff);
 }
 */
+
+/* ************************  READING FROM FILE ************************ */
+
+
+/*void readFile(ifstream& infile, vector<InsCSV*>& InsObjPtrs){
+
+    CSVRow RowObj;
+
+    while(infile >> RowObj){
+        parseIns(RowObj, InsObjPtrs);
+    }
+
+}*/
+
+
+void readFile(string filename, vector<InsCSV*>& InsObjPtrs){
+
+    ifstream infile;
+
+    infile.open("Instructions.csv");
+    //infile.open(filename);
+
+    if(!infile.is_open()){
+        cout<<"Could not open input file"<<endl;
+        exit(1);
+    }
+
+    CSVRow RowObj;
+
+    while(infile >> RowObj){
+        parseIns(RowObj, InsObjPtrs);
+    }
+
+    infile.close();
+}
 
 /* ************************  MEMORY OPERATIONS ************************ */
 
@@ -32,8 +116,8 @@ uint32_t BuildJ(uint32_t opcode, uint32_t arg){
 mips_error loadMem(mips_mem_h mem, vector<InsCSV*>& InsObjPtrs){
 
     for(int i=0; i<InsObjPtrs.size(); i++){
-        mips_error err = loadIns(mem, i*BLOCKSIZE - 1, InsObjPtrs[i]);
-        if(!err) return err; 
+        mips_error err = loadIns(mem, i*4 - 1, InsObjPtrs[i]);
+        if(err) return err; 
     }
 
     return mips_Success;
@@ -49,13 +133,16 @@ mips_error loadIns(mips_mem_h mem, uint32_t address, InsCSV* InsObj){
     InsWord = change_endian(InsWord);
       
     // Load in RAM  
-    err = mips_mem_write(
+    mips_error err = mips_mem_write(
         mem,                             //!< Handle to target memory
         address,                         //!< Byte address to start transaction at
         4,                               //!< Number of bytes to transfer
         (uint8_t*)&(InsWord)             //!< Receives the target bytes
     );
 
-    return checkMemWrite(err);
+    checkMemWrite(err);
+    
+    return mips_Success;
 } 
+
 

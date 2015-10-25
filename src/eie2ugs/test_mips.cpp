@@ -41,7 +41,7 @@ int main()
     
     e=mips_mem_write(
         mem,	        //!< Handle to target memory
-        0,	            //!< Byte address to start transaction at
+        4,	            //!< Byte address to start transaction at
         4,	            //!< Number of bytes to transfer
         buffer	        //!< Receives the target bytes
     );

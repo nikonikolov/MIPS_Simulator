@@ -1,15 +1,15 @@
 #include "InsRCSV.h"
 
-InsRCSV::InsRCSV(char* nameIn, uint8_t opcodeIn /*=0*/, uint8_t rsIn, uint8_t rtIn, uint8_t rdIn, uint8_t shiftIn =0, uint8_t fnIn,
-			 int src1In, int src2In, int resultIn)	:
+InsRCSV::InsRCSV(char* nameIn, uint8_t opcodeIn /*=0*/, uint8_t rsIn, uint8_t rtIn, uint8_t rdIn, uint8_t shiftIn /*=0*/, uint8_t fnIn,
+			 uint32_t src1In, uint32_t src2In, uint32_t resultIn, char* msgIn)	:
 			
-			InsCSV(nameIn, opcodeIn), rs(rsIN), rt(rtIN), rd(rdIN), shift(shiftIN), fn(fnIN),
+			InsCSV(nameIn, opcodeIn, msgIn), rs(rsIn), rt(rtIn), rd(rdIn), shift(shiftIn), fn(fnIn),
 			src1(src1In), src2(src2In), result(resultIn) {}
 
 
 uint32_t InsRCSV::Build(){
     return
-        (INSCSV::opcode << 26)  |   // opcode = 0
+        (InsCSV::opcode << 26)  |   // opcode = 0
         (rs << 21)      |   		// reg 1
         (rt << 16)      |   		// reg 2
         (rd << 11)      |   		// dest reg
@@ -20,8 +20,7 @@ uint32_t InsRCSV::Build(){
 
 void InsRCSV::SetRegs(mips_cpu_h cpuPtr){
 
-	// NOTE : YOU NEED TO PERFORM CHECKS ABOUT THE SIGN OF PARAMETERS AND USE TWOS COMPLEMENT IF NECESSARY
-    // BE CAREFUL WIHT UNSIGNED TYPES
+    // NOTE : C STORES NEGATIVE NUMBERS INSIDE UINT TYPE WITH THEIR TWO'S COMLEMENT EQUIVALENT, SO NO ADDITIONAL CHECKS ARE REQUIRED
 	mips_error err = mips_cpu_set_register(cpuPtr, rs, src1);
     checkRegSet(err);
     err = mips_cpu_set_register(cpuPtr, rt, src2);
@@ -29,15 +28,32 @@ void InsRCSV::SetRegs(mips_cpu_h cpuPtr){
 }
     
 
-int InsRCSV::CheckResult(mips_cpu_h cpuPtr, char** msg /*=NULL*/){
+int InsRCSV::CheckResult(mips_cpu_h cpuPtr, char** msg){
     uint32_t calcResult;
 
-    mips_error err = mips_cpu_get_register(cpu, rd, &calcResult);
+    mips_error err = mips_cpu_get_register(cpuPtr, rd, &calcResult);
     checkRegGet(err);
 
-    // MODIFY MESSAGE IF NECESSARY. NEED ANOTHER MEMBER IN ABSTRACT CLASS
+    // Modify message
+    *msg = InsCSV::msg;
 
-    // NOTE : YOU NEED TO PERFORM CHECKS ABOUT THE SIGN OF PARAMETERS AND USE TWOS COMPLEMENT IF NECESSARY
-    // BE CAREFUL WIHT UNSIGNED TYPES
-    return result == calcResult
+    // NOTE : C STORES NEGATIVE NUMBERS INSIDE UINT TYPE WITH THEIR TWO'S COMLEMENT EQUIVALENT, SO NO ADDITIONAL CHECKS ARE REQUIRED
+    return result == calcResult;
+}
+
+void InsRCSV::printInsObj(mips_cpu_h state){
+    fprintf(state->logDst, "InsRCSV Object values: ");
+    fprintf(state->logDst, "name: %s ", InsCSV::name);
+    fprintf(state->logDst, "opcode: %x ", InsCSV::opcode);
+    fprintf(state->logDst, "rs: %d ", rs);
+    fprintf(state->logDst, "rt: %d ", rt);
+    fprintf(state->logDst, "rd: %d ", rd);
+    fprintf(state->logDst, "shift: %x ", shift);
+    fprintf(state->logDst, "fn: %x ", fn);
+    fprintf(state->logDst, "src1: %d ", src1);
+    fprintf(state->logDst, "src2: %d ", src2);
+    fprintf(state->logDst, "result: %d ", result);
+    fprintf(state->logDst, "msg: %s\n", InsCSV::msg);
+    
+    debugPrintWord(state, Build(), "InsRCSV Built Word:");
 }

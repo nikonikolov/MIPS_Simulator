@@ -4,9 +4,9 @@
 #ifndef INSR_H
 #define INSR_H
 #include "../Ins/Ins.h"
-//#include "../mips_cpu_ins_decode.h"
+//#include "../mips_cpu_decode.h"
 
-typedef mips_error (*FPR)(uint32_t, uint32_t, uint64_t&, uint8_t);
+typedef mips_error (*FPR)(uint32_t, uint32_t, uint32_t&, uint8_t);
 
 template<class FnPtrSpec>
 class InsR : public Ins<FnPtrSpec> {
@@ -16,8 +16,9 @@ public:
 	InsR(uint8_t opcode_in, char* name_in, FnPtrSpec FnImpl_in):
 	Ins<FnPtrSpec>(opcode_in, name_in, FnImpl_in) {}
 	
+	~InsR(){}
 
-	mips_error debugIns(mips_cpu_h state, uint32_t InsWord, uint64_t result) const{
+	mips_error debugIns(mips_cpu_h state, uint32_t InsWord, uint32_t result) const{
 
 		if(state->logLevel >= LOGLOW){
 			uint8_t code = extr_fn(InsWord);
@@ -36,9 +37,9 @@ public:
 
     				uint32_t src1, src2;
     				mips_error err = mips_cpu_get_register( state, rs, &src1);
-    				if(!err) return err;
+    				if(err) return err;
     				err = mips_cpu_get_register( state, rt, &src2); 
-    				if(!err) return err;
+    				if(err) return err;
 
     				fprintf(state->logDst, " src1=%u, src2=%u\n", src1, src2);
 

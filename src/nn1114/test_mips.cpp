@@ -1,5 +1,12 @@
 #include "mips.h"
 #include "test_mips_private.h"
+#include "test_mips_exitcheck.h"
+
+#include <iostream>
+#include <vector>
+#include <string>
+
+using namespace std;
 
 int main()
 {
@@ -19,9 +26,7 @@ int main()
 
     vector<InsCSV*> InsObjPtrs;
 
-    /* *********************** READ/INITIALIZE VECTOR *********************** */ 
-
-    // TO BE DONE
+    int testId;
 
     /* *********************** CREATE CPU AND RAM *********************** */ 
     mem=mips_mem_create_ram(4096, 4);
@@ -32,41 +37,105 @@ int main()
     checkDebug(err);
     
 
+    /* *********************** READ/INITIALIZE VECTOR *********************** */ 
+
+    readFile("Instructions.csv", InsObjPtrs);
+
+   // InsObjPtrs = {  new InsRCSV("add", 0, 4, 5, 7, 0, 0x20 /*100000*/, 40, 50, 90, "40+50=90"),
+     //               new InsRCSV("addu", 0, 4, 5, 7, 0, 0x21 /*100000*/, -1, -1, -2, "40+50=90"),
+       //             new InsRCSV("add", 0, 4, 5, 7, 0, 0x20 /*100000*/, -1, -1, -2, "40+50=90"), 
+         //           new InsRCSV("add", 0, 4, 5, 7, 0, 0x20 /*100000*/, 2147483647, 2147483647, -2, "40+50=90"), 
+                    //new InsRCSV("add", 0, 4, 5, 7, 0, 0x20 /*100000*/, 2147483648, 2147483648, -2, "40+50=90"),  
+           //      };
+
+    if(debuglvl>0){
+        for(int i=0; i<InsObjPtrs.size();i++){
+            InsObjPtrs[i]->printInsObj(cpu);
+        }
+    }
+
+
     /* *********************** START TEST SUITE *********************** */ 
     mips_test_begin_suite();
 
 
+    /* *********************** RUN THE WHOLE PROGRAM LOADED IN MEMORY *********************** */ 
+    
+    
+    /*
     // LOAD INSTRUCTIONS IN RAM
     err = loadMem(mem, InsObjPtrs);
 
-    /* *********************** FIRST TEST STARTS *********************** */ 
+    uint32_t pc=0;
 
-    // THINK HOW TO CHANGE PC AND SYNCHRONIZE IT WITH THE CURRENT INSTRUCTION !!!
+    for(int j=0, i=0; j<InsObjPtrs.size() && pc<InsObjPtrs.size()*4; j++){
 
-    // 1 - set testId
-    int testId = mips_test_begin_test(InsObjPtrs[i]->get_name());    
-    //int testId = mips_test_begin_test("addu");    
+        i = pc/4;
 
+        // 1 - set testId
+        testId = mips_test_begin_test(InsObjPtrs[i]->get_name());    
     
-    // 2 - put register values in cpu
-    err = InsObjPtrs[i]->SetRegs(cpu);
+        // 2 - put register values in cpu
+        InsObjPtrs[i]->SetRegs(cpu);
     
-    // 3 - step CPU
-    err=mips_cpu_step(cpu);
-    checkStep(err);
+        // 3 - step CPU
+        err=mips_cpu_step(cpu);
+        checkStep(err);
+        
+        // 4 -Check the result
+        char* msg = NULL;
     
-    // 4 -Check the result
+        int passed = InsObjPtrs[i]->CheckResult(cpu, &msg);
+    
+        mips_test_end_test(testId, passed, msg);
 
-    char* msg = NULL;
+        err = mips_cpu_get_pc(cpu, &pc);
+        checkPCGet(err);
+    }
+    */
+
+    /* *********************** END RUN THE WHOLE PROGRAM LOADED IN MEMORY *********************** */ 
     
-    int passed = InsObjPtrs[i]->CheckResult(cpu, &msg);
+
+    /* *********************** RUN ONE INSTRUCTION AT A TIME *********************** */ 
+
+    uint32_t pc=0;
+
+    for(int j=0, i=0; j<InsObjPtrs.size() && pc<InsObjPtrs.size()*4; j++){
+
+        i = pc/4;
     
-    mips_test_end_test(testId, passed, msg);
+        // 1 - load ONE instruction in RAM, the one that pc currently points to
+        err = loadIns(mem, pc, InsObjPtrs[i]);
+
+        cout<<"before"<<endl;
+        testId = mips_test_begin_test(InsObjPtrs[i]->get_name());    
+        cout<<"after"<<endl;
     
+        // 2 - put register values in cpu
+        InsObjPtrs[i]->SetRegs(cpu);
+    
+        // 3 - step CPU
+        err=mips_cpu_step(cpu);
+        checkStep(err);
+        
+        // 4 -Check the result
+        char* msg = NULL;
+    
+        int passed = InsObjPtrs[i]->CheckResult(cpu, &msg);
+    
+        mips_test_end_test(testId, passed, msg);
+
+        err = mips_cpu_get_pc(cpu, &pc);
+        checkPCGet(err);
+    }
+
+    /* *********************** END RUN ONE INSTRUCTION AT A TIME *********************** */ 
+
+
     /* *********************** SECOND TEST STARTS *********************** */ 
 
-    
-    testId = mips_test_begin_test("addu");    
+    /*testId = mips_test_begin_test("addu");    
     
     // 1 - Setup an instruction in ram
     // addu r3, r4, r5
@@ -101,8 +170,11 @@ int main()
    
     passed = got == 0;
     
-    mips_test_end_test(testId, passed, "r0 <> 0");
+    mips_test_end_test(testId, passed, "r0 <> 0");*/
+
+
     
+    /* *********************** END TEST SUITE *********************** */ 
     
     mips_test_end_suite();
     

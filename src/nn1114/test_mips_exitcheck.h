@@ -15,3 +15,5 @@ void checkMemRead(mips_error err);
 void checkRegSet(mips_error err);
 
 void checkRegGet(mips_error err);
+
+void checkPCGet(mips_error err);

@@ -6,6 +6,7 @@
 #include "mips.h"
 #include "../mips_cpu_def.h"
 #include "../mips_cpu_private.h"
+#include "../common_print.h"
 
 
 template <class FNPTR>
@@ -15,6 +16,9 @@ public:
 
 	Ins(uint8_t opcode_in, char* name_in, FNPTR FnImpl_in) :
 	opcode(opcode_in), name(name_in), FnImpl(FnImpl_in) {}
+
+	virtual ~Ins(){}
+
 	
 	uint8_t get_opcode() const{
 		return opcode;
@@ -29,7 +33,7 @@ public:
 		return FnImpl;
 	}
 
-	virtual mips_error debugIns(mips_cpu_h state, uint32_t InsWord, uint64_t result) const =0;
+	virtual mips_error debugIns(mips_cpu_h state, uint32_t InsWord, uint32_t result) const =0;
 
 protected:
 	uint8_t opcode;

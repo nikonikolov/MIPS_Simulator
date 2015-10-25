@@ -1,7 +1,9 @@
 #include "mips.h"
 #include "mips_cpu_def.h"
 #include "mips_cpu_private.h"
-#include "mips_cpu_ins_decode.h"
+#include "mips_cpu_decode.h"
+#include "common_print.h"
+#include "common_end.h"
 
 
 mips_cpu_h mips_cpu_create(mips_mem_h mem){
@@ -17,11 +19,8 @@ mips_cpu_h mips_cpu_create(mips_mem_h mem){
 }
 
 
-// YOU NEED TO ACCOUNT FOR UNSUCCESSFUL CASE HERE
 mips_error mips_cpu_reset(mips_cpu_h state){
 	
-	if(state==NULL)	return mips_ErrorInvalidArgument;
-
 	state->PC = 0;
 	state->nPC = state->PC + BLOCKSIZE;
 
@@ -46,16 +45,12 @@ mips_error mips_cpu_get_register(
 	unsigned index,		//!< Index from 0 to 31
 	uint32_t *value		//!< Where to write the value to
 ){
-	if(value==NULL)	return mips_ErrorInvalidArgument;
+	if(index<REGS){
+		*value = state->regs[index];
+		return mips_Success;
+	}
 
-	else{
-		if(index<REGS){
-			*value = state->regs[index];
-			return mips_Success;
-		}
-
-		else return mips_ErrorInvalidArgument;
-	} 
+	else return printErr(state, mips_ErrorInvalidArgument, "Fn: mips_cpu_get_reg, reg idx not in range");	
 }
 
 
@@ -69,17 +64,18 @@ mips_error mips_cpu_set_register(
 		return mips_Success;
 	}
 	
-	else return mips_ErrorInvalidArgument;
+	else return printErr(state, mips_ErrorInvalidArgument, "Fn: mips_cpu_set_reg, reg idx not in range");	
 }
 
 
-// ACCOUNT FOR CASE WHEN ADDRESS IS OUT OF ALLOCATED MEMORY !!! - read instruction might be taking care of that
 mips_error mips_cpu_set_pc(
 	mips_cpu_h state,	//!< Valid (non-empty) handle to a CPU
 	uint32_t pc			//!< Address of the next instruction to exectute.
-){
+){	
 	state->PC = pc;
-	state->nPC = state->PC + BLOCKSIZE;
+	// NOTE: YOU SHOULD NOT TOUCH nPC HERE 
+	// THE EXPECTED BEHAVIOUR WOULD BE TO SET PC ONLY AND UPDATE nPC AT THE NEXT STEP CALL
+	//state->nPC = state->PC + BLOCKSIZE;
 
 	return mips_Success;
 }
@@ -89,15 +85,11 @@ mips_error mips_cpu_get_pc(
 	mips_cpu_h state,	//!< Valid (non-empty) handle to a CPU
 	uint32_t *pc		//!< Where to write the byte address too
 ){
-	if(pc==NULL) return mips_ErrorInvalidArgument;
-	else{
-		*pc=state->PC;
-		return mips_Success;
-	}
+	*pc=state->PC;
+	return mips_Success;
 }
 
 
-// DECODE INSTRUCTION AND IMPLEMENT REQUIRED
 mips_error mips_cpu_step(
 	mips_cpu_h state	//! Valid (non-empty) handle to a CPU
 ){
@@ -108,31 +100,35 @@ mips_error mips_cpu_step(
    	state->memPtr,							//!< Handle to target memory
     state->PC,								//!< Byte address to start transaction at
     (uint32_t)BLOCKSIZE,					//!< Number of bytes to transfer
-    (uint8_t*)&(InsWord)		//!< Receives the target bytes
-	// CHECK THAT THE LAST PARAMETER WORKS PROPERLY
-	);
-	
-	// check if read is sucessful
-	if(!err) return err;
+    (uint8_t*)&(InsWord)					//!< Receives the target bytes
+	);	
+	if(err) return printErr(state, err, "Fn: mips_cpu_step, mem_read unsuccessful");	
 	
 	// convert from big endian
 	InsWord = change_endian(InsWord);
 
+
 	// Find instruction type
 	FP FnImpl = decodeType(InsWord);
 
-	// decode and execute instruction
-	err = FnImpl(state, InsWord);
-	if(!err) return err;		// SHOULD YOU ADVANCE PC WHEN EXCEPTION OCCURS?
 
+	// decode and execute instruction
+	err = FnImpl(state, InsWord);	
+	if(err) return printErr(state, err, "Fn: mips_cpu_step, find and execute unsuccessful");	
+
+	// NOTE: YOU SHOULD NOT ADVANCE PC WHEN EXCEPTION OCCURS
+
+	
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// DON'T FORGET TO ACCOUNT FOR BRANCHES
 
 	advance_pc(state, (uint32_t)BLOCKSIZE);
+
 	return mips_Success;	
 }
 
 
 void mips_cpu_free(mips_cpu_h state){
-	if(state!=NULL)	delete state;
+	delete state;
 }
 

@@ -171,7 +171,7 @@ mips_error mips_cpu_step(
 		// The implementation can write lots of useful information to
 		// the file
 		mips_error err=mips_Success;
-		while(!err) {
+		while(err) {
 			mips_cpu_step(cpu);
 		};
 		

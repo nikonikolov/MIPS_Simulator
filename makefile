@@ -21,8 +21,10 @@ USER_CPU_SRCS = \
     $(wildcard src/$(LOGIN)/mips_cpu.cpp) \
     $(wildcard src/$(LOGIN)/mips_cpu_*.c) \
     $(wildcard src/$(LOGIN)/mips_cpu_*.cpp) \
-    $(wildcard src/$(LOGIN)/*/*.c) \
-    $(wildcard src/$(LOGIN)/*/*.cpp) \
+    $(wildcard src/$(LOGIN)/test_mips_*.c) \
+    $(wildcard src/$(LOGIN)/test_mips_*.cpp) \
+    $(wildcard src/$(LOGIN)/common_*.c) \
+    $(wildcard src/$(LOGIN)/common_*.cpp) \
     $(wildcard src/$(LOGIN)/*/*.c) \
     $(wildcard src/$(LOGIN)/*/*.cpp)
     

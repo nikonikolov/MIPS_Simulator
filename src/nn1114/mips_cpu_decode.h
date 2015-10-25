@@ -1,8 +1,8 @@
-#ifndef mips_cpu_ins_decode_h
-#define mips_cpu_ins_decode_h
+#ifndef mips_cpu_decode_h
+#define mips_cpu_decode_h
 
 #include "mips.h"		// required for var types
-#include <vector>
+#include "common_print.h"
 #include "Ins/Ins.h"
 #include "InsI/InsI.h"
 #include "InsR/InsR.h"
@@ -10,6 +10,7 @@
 #include "mips_cpu_ins_set.h"
 #include "mips_cpu_private.h"
 
+#include <vector>
 
 using namespace std;
 
@@ -36,20 +37,10 @@ const InsObjType* findIns(uint8_t opcode, const vector<InsObjType>& InsStruct){
 
 
 FP decodeType(uint32_t InsWord);
-FP insType(uint8_t instype);
-
 
 mips_error decodeR(mips_cpu_h state, uint32_t InsWord);
 mips_error decodeI(mips_cpu_h state, uint32_t InsWord);
 mips_error decodeJ(mips_cpu_h state, uint32_t InsWord);
-
-
-
-
-
-
-mips_error extr_R(mips_cpu_h state, uint32_t InsWord, uint32_t& src1, uint32_t& src2, uint8_t& rd, uint8_t& shift);
-
 
 
 #endif

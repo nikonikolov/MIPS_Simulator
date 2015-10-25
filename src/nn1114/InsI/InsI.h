@@ -5,7 +5,7 @@
 #define INSI_H
 #include "../Ins/Ins.h"
 
-typedef mips_error (*FPI)(uint32_t, uint16_t, uint64_t&);
+typedef mips_error (*FPI)(uint32_t, uint32_t, uint32_t&);
 
 template<class FnPtrSpec>
 class InsI : public Ins<FnPtrSpec> {
@@ -14,8 +14,10 @@ public:
 	
 	InsI(uint8_t opcode_in, char* name_in, FnPtrSpec FnImpl_in):
 	Ins<FnPtrSpec>(opcode_in, name_in, FnImpl_in) {}
+
+	~InsI(){}	
 	
-	mips_error debugIns(mips_cpu_h state, uint32_t InsWord, uint64_t result) const {
+	mips_error debugIns(mips_cpu_h state, uint32_t InsWord, uint32_t result) const {
 
 		if(state->logLevel >= LOGLOW){
 			uint8_t code = extr_opcode(InsWord);
@@ -33,7 +35,7 @@ public:
 
     				uint32_t src1;
     				mips_error err = mips_cpu_get_register( state, rs, &src1);
-    				if(!err) return err;
+    				if(err) return err;
 
     				fprintf(state->logDst, " src1=%u\n", src1);
 
