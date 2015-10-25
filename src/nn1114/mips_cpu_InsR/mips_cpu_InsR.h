@@ -3,7 +3,7 @@
 
 #ifndef INSR_H
 #define INSR_H
-#include "../Ins/Ins.h"
+#include "../mips_cpu_Ins/mips_cpu_Ins.h"
 //#include "../mips_cpu_decode.h"
 
 typedef mips_error (*FPR)(uint32_t, uint32_t, uint32_t&, uint8_t);

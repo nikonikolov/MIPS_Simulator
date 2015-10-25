@@ -1,13 +1,13 @@
-#include "InsRCSV.h"
+#include "test_mips_Rcsv.h"
 
-InsRCSV::InsRCSV(string nameIn, uint8_t opcodeIn /*=0*/, uint8_t rsIn, uint8_t rtIn, uint8_t rdIn, uint8_t shiftIn /*=0*/, uint8_t fnIn,
+Rcsv::Rcsv(string nameIn, uint8_t opcodeIn /*=0*/, uint8_t rsIn, uint8_t rtIn, uint8_t rdIn, uint8_t shiftIn /*=0*/, uint8_t fnIn,
 			 uint32_t src1In, uint32_t src2In, uint32_t resultIn, string msgIn)	:
 			
 			InsCSV(nameIn, opcodeIn, msgIn), rs(rsIn), rt(rtIn), rd(rdIn), shift(shiftIn), fn(fnIn),
 			src1(src1In), src2(src2In), result(resultIn) {}
 
 
-uint32_t InsRCSV::Build(){
+uint32_t Rcsv::Build(){
     return
         (InsCSV::opcode << 26)  |   // opcode = 0
         (rs << 21)      |   		// reg 1
@@ -18,7 +18,7 @@ uint32_t InsRCSV::Build(){
 }
 
 
-void InsRCSV::SetRegs(mips_cpu_h cpuPtr){
+void Rcsv::SetRegs(mips_cpu_h cpuPtr){
 
     // NOTE : C STORES NEGATIVE NUMBERS INSIDE UINT TYPE WITH THEIR TWO'S COMLEMENT EQUIVALENT, SO NO ADDITIONAL CHECKS ARE REQUIRED
 	mips_error err = mips_cpu_set_register(cpuPtr, rs, src1);
@@ -28,7 +28,7 @@ void InsRCSV::SetRegs(mips_cpu_h cpuPtr){
 }
     
 
-int InsRCSV::CheckResult(mips_cpu_h cpuPtr, char** msg){
+int Rcsv::CheckResult(mips_cpu_h cpuPtr, char** msg){
     uint32_t calcResult;
 
     mips_error err = mips_cpu_get_register(cpuPtr, rd, &calcResult);
@@ -41,8 +41,8 @@ int InsRCSV::CheckResult(mips_cpu_h cpuPtr, char** msg){
     return result == calcResult;
 }
 
-void InsRCSV::printInsObj(mips_cpu_h state){
-    fprintf(state->logDst, "InsRCSV Object values: ");
+void Rcsv::printInsObj(mips_cpu_h state){
+    fprintf(state->logDst, "Rcsv Object values: ");
     fprintf(state->logDst, "name: %s ", InsCSV::get_name());
     fprintf(state->logDst, "opcode: %x ", InsCSV::opcode);
     fprintf(state->logDst, "rs: %d ", rs);
@@ -55,5 +55,5 @@ void InsRCSV::printInsObj(mips_cpu_h state){
     fprintf(state->logDst, "result: %d ", result);
     fprintf(state->logDst, "msg: %s\n", InsCSV::get_msg());
     
-    debugPrintWord(state, Build(), "InsRCSV Built Word:");
+    debugPrintWord(state, Build(), "Rcsv Built Word:");
 }

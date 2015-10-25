@@ -1,9 +1,8 @@
-
 /* Definition J-type (instruction) with opcode and pointer to function implementation of actual instruction*/
 
 #ifndef INSJ_H
 #define INSJ_H
-#include "../Ins/Ins.h"
+#include "../mips_cpu_Ins/mips_cpu_Ins.h"
 
 typedef mips_error (*FPJ)(mips_cpu_h, uint32_t);
 

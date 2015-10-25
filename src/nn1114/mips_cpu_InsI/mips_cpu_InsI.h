@@ -3,7 +3,7 @@
 
 #ifndef INSI_H
 #define INSI_H
-#include "../Ins/Ins.h"
+#include "../mips_cpu_Ins/mips_cpu_Ins.h"
 
 typedef mips_error (*FPI)(uint32_t, uint32_t, uint32_t&);
 

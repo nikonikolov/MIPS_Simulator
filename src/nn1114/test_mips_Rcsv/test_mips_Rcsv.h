@@ -1,16 +1,16 @@
-#ifndef INSRCSV_H
-#define INSRCSV_H
+#ifndef Rcsv_H
+#define Rcsv_H
 
-#include "../InsCSV/InsCSV.h"
+#include "../test_mips_InsCSV/test_mips_InsCSV.h"
 
-class InsRCSV : public InsCSV {
+class Rcsv : public InsCSV {
 
 public:
 	
-	InsRCSV(string nameIn, uint8_t opcodeIn, uint8_t rsIn, uint8_t rtIn, uint8_t rdIn, uint8_t shiftIn, uint8_t fnIn,
+	Rcsv(string nameIn, uint8_t opcodeIn, uint8_t rsIn, uint8_t rtIn, uint8_t rdIn, uint8_t shiftIn, uint8_t fnIn,
 			 uint32_t src1In, uint32_t src2In, uint32_t resultIn, string msgIn);
 
-	~InsRCSV(){}
+	~Rcsv(){}
 
 	uint32_t Build();
 	int CheckResult(mips_cpu_h cpuPtr, char** msg);

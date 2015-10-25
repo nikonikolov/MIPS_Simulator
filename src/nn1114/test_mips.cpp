@@ -41,11 +41,11 @@ int main()
 
     readFile("Instructions.csv", InsObjPtrs);
 
-   // InsObjPtrs = {  new InsRCSV("add", 0, 4, 5, 7, 0, 0x20 /*100000*/, 40, 50, 90, "40+50=90"),
-     //               new InsRCSV("addu", 0, 4, 5, 7, 0, 0x21 /*100000*/, -1, -1, -2, "40+50=90"),
-       //             new InsRCSV("add", 0, 4, 5, 7, 0, 0x20 /*100000*/, -1, -1, -2, "40+50=90"), 
-         //           new InsRCSV("add", 0, 4, 5, 7, 0, 0x20 /*100000*/, 2147483647, 2147483647, -2, "40+50=90"), 
-                    //new InsRCSV("add", 0, 4, 5, 7, 0, 0x20 /*100000*/, 2147483648, 2147483648, -2, "40+50=90"),  
+   // InsObjPtrs = {  new Rcsv("add", 0, 4, 5, 7, 0, 0x20 /*100000*/, 40, 50, 90, "40+50=90"),
+     //               new Rcsv("addu", 0, 4, 5, 7, 0, 0x21 /*100000*/, -1, -1, -2, "40+50=90"),
+       //             new Rcsv("add", 0, 4, 5, 7, 0, 0x20 /*100000*/, -1, -1, -2, "40+50=90"), 
+         //           new Rcsv("add", 0, 4, 5, 7, 0, 0x20 /*100000*/, 2147483647, 2147483647, -2, "40+50=90"), 
+                    //new Rcsv("add", 0, 4, 5, 7, 0, 0x20 /*100000*/, 2147483648, 2147483648, -2, "40+50=90"),  
            //      };
 
     if(debuglvl>0){
@@ -65,13 +65,9 @@ int main()
     /*
     // LOAD INSTRUCTIONS IN RAM
     err = loadMem(mem, InsObjPtrs);
-
     uint32_t pc=0;
-
     for(int j=0, i=0; j<InsObjPtrs.size() && pc<InsObjPtrs.size()*4; j++){
-
         i = pc/4;
-
         // 1 - set testId
         testId = mips_test_begin_test(InsObjPtrs[i]->get_name());    
     
@@ -88,7 +84,6 @@ int main()
         int passed = InsObjPtrs[i]->CheckResult(cpu, &msg);
     
         mips_test_end_test(testId, passed, msg);
-
         err = mips_cpu_get_pc(cpu, &pc);
         checkPCGet(err);
     }
@@ -149,7 +144,6 @@ int main()
         4,                               //!< Number of bytes to transfer
         (uint8_t*)&(InsWord)             //!< Receives the target bytes
     );
-
     checkMemWrite(err);
     
     // 2 - put register values in cpu
@@ -163,7 +157,6 @@ int main()
     checkStep(err);
     
     // 4 -Check the result
-
     err = mips_cpu_get_register(cpu, 3, &result);
     checkRegGet(err);
     

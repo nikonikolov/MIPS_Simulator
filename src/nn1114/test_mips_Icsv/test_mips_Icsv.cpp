@@ -1,13 +1,13 @@
-#include "InsICSV.h"
+#include "test_mips_Icsv.h"
 
-InsICSV::InsICSV(string nameIn, uint8_t opcodeIn, uint8_t rsIn, uint8_t rdIn, uint16_t immIn,
+Icsv::Icsv(string nameIn, uint8_t opcodeIn, uint8_t rsIn, uint8_t rdIn, uint16_t immIn,
              uint32_t src1In, uint32_t resultIn, string msgIn):
 
 			InsCSV(nameIn, opcodeIn, msgIn), rs(rsIn), rd(rdIn), imm(immIn),
 			src1(src1In), result(resultIn) {}
 
 
-uint32_t InsICSV::Build(){
+uint32_t Icsv::Build(){
     return
         (InsCSV::opcode << 26)  |   // opcode
         (rs << 21)      |   		// reg 1
@@ -16,7 +16,7 @@ uint32_t InsICSV::Build(){
 }
 
 
-void InsICSV::SetRegs(mips_cpu_h cpuPtr){
+void Icsv::SetRegs(mips_cpu_h cpuPtr){
 
     // NOTE : C STORES NEGATIVE NUMBERS INSIDE UINT TYPE WITH THEIR TWO'S COMLEMENT EQUIVALENT, SO NO ADDITIONAL CHECKS ARE REQUIRED
 	mips_error err = mips_cpu_set_register(cpuPtr, rs, src1);
@@ -25,7 +25,7 @@ void InsICSV::SetRegs(mips_cpu_h cpuPtr){
     
 
 // WHAT ABOUT JUMPS ???
-int InsICSV::CheckResult(mips_cpu_h cpuPtr, char** msg){
+int Icsv::CheckResult(mips_cpu_h cpuPtr, char** msg){
     uint32_t calcResult;
 
     mips_error err = mips_cpu_get_register(cpuPtr, rd, &calcResult);
@@ -38,8 +38,8 @@ int InsICSV::CheckResult(mips_cpu_h cpuPtr, char** msg){
     return result == calcResult;
 }
 
-void InsICSV::printInsObj(mips_cpu_h state){
-    fprintf(state->logDst, "InsICSV Object values: ");
+void Icsv::printInsObj(mips_cpu_h state){
+    fprintf(state->logDst, "Icsv Object values: ");
     fprintf(state->logDst, "name: %s ", InsCSV::get_name());
     fprintf(state->logDst, "opcode: %x ", InsCSV::opcode);
     fprintf(state->logDst, "rs: %x ", rs);
@@ -49,6 +49,6 @@ void InsICSV::printInsObj(mips_cpu_h state){
     fprintf(state->logDst, "result: %x ", result);
     fprintf(state->logDst, "msg: %s\n", InsCSV::get_msg());
     
-    debugPrintWord(state, Build(), "InsICSV Built Word:");
+    debugPrintWord(state, Build(), "Icsv Built Word:");
 }
 

@@ -1,22 +1,7 @@
 #include "test_mips_private.h"
 
-/*static vector<string>* readLine(ifstream& infile){
+/* *********************** HELP FUNCTIONS NEEDED ONLY IN THE FUNCTIONS IN THE CORRESPONDING HEADER *********************** */ 
 
-    vector<string> LineRead; 
-    
-    string line;
-    getline(infile,line);
-
-    stringstream lineStream(line);
-    string cell;
-
-    while(getline(lineStream,cell,','))
-    {
-        LineRead.push_back(cell);
-    }
-
-    return &LineRead;
-}*/
 static uint32_t tohex(string number){
     uint32_t result;
 
@@ -47,7 +32,7 @@ static void parseIns(const CSVRow& RowObj, vector<InsCSV*>& InsObjPtrs){
         }
 
     if(size==11){       // R-type instruction
-        InsCSVPtr = new InsRCSV(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint8_t)(toint(RowObj[2])), 
+        InsCSVPtr = new Rcsv(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint8_t)(toint(RowObj[2])), 
                                             (uint8_t)(toint(RowObj[3])), (uint8_t)(toint(RowObj[4])), 
                                             (uint8_t)(toint(RowObj[5])), (uint8_t)(tohex(RowObj[6])),
                                             (uint32_t)(toint(RowObj[7])), (uint32_t)(toint(RowObj[8])), 
@@ -56,7 +41,7 @@ static void parseIns(const CSVRow& RowObj, vector<InsCSV*>& InsObjPtrs){
     }
 
     else if(size==8){   // I-type instruction
-        InsCSVPtr = new InsICSV(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint8_t)(toint(RowObj[2])), 
+        InsCSVPtr = new Icsv(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint8_t)(toint(RowObj[2])), 
                                             (uint8_t)(toint(RowObj[3])), (uint16_t)(toint(RowObj[4])), 
                                             (uint32_t)(toint(RowObj[5])), (uint32_t)(toint(RowObj[6])),
                                             RowObj[7] );
@@ -64,7 +49,7 @@ static void parseIns(const CSVRow& RowObj, vector<InsCSV*>& InsObjPtrs){
     }
 
     else if(size==5){   // J-type instruction
-        InsCSVPtr = new InsJCSV(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint32_t)(toint(RowObj[2])), 
+        InsCSVPtr = new Jcsv(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint32_t)(toint(RowObj[2])), 
                                             (uint32_t)(toint(RowObj[3])), RowObj[4] );
         InsObjPtrs.push_back(InsCSVPtr);
     }

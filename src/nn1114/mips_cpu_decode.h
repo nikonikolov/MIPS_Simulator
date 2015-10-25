@@ -3,10 +3,10 @@
 
 #include "mips.h"		// required for var types
 #include "common_print.h"
-#include "Ins/Ins.h"
-#include "InsI/InsI.h"
-#include "InsR/InsR.h"
-#include "InsJ/InsJ.h"
+#include "mips_cpu_Ins/mips_cpu_Ins.h"
+#include "mips_cpu_InsI/mips_cpu_InsI.h"
+#include "mips_cpu_InsR/mips_cpu_InsR.h"
+#include "mips_cpu_InsJ/mips_cpu_InsJ.h"
 #include "mips_cpu_ins_set.h"
 #include "mips_cpu_private.h"
 
