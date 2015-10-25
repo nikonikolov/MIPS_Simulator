@@ -41,18 +41,12 @@ int main()
 
     readFile("Instructions.csv", InsObjPtrs);
 
-   // InsObjPtrs = {  new Rcsv("add", 0, 4, 5, 7, 0, 0x20 /*100000*/, 40, 50, 90, "40+50=90"),
-     //               new Rcsv("addu", 0, 4, 5, 7, 0, 0x21 /*100000*/, -1, -1, -2, "40+50=90"),
-       //             new Rcsv("add", 0, 4, 5, 7, 0, 0x20 /*100000*/, -1, -1, -2, "40+50=90"), 
-         //           new Rcsv("add", 0, 4, 5, 7, 0, 0x20 /*100000*/, 2147483647, 2147483647, -2, "40+50=90"), 
-                    //new Rcsv("add", 0, 4, 5, 7, 0, 0x20 /*100000*/, 2147483648, 2147483648, -2, "40+50=90"),  
-           //      };
 
-    if(debuglvl>0){
+    /*if(debuglvl>0){
         for(int i=0; i<InsObjPtrs.size();i++){
             InsObjPtrs[i]->printInsObj(cpu);
         }
-    }
+    }*/
 
 
     /* *********************** START TEST SUITE *********************** */ 
@@ -81,9 +75,23 @@ int main()
         // 4 -Check the result
         char* msg = NULL;
     
-        int passed = InsObjPtrs[i]->CheckResult(cpu, &msg);
+        int passed = InsObjPtrs[i]->CheckResult(cpu, err, &msg);
     
+        // Print Ins Obj if instruction failed
+        if(!passed){
+            cout<<"Following instruction failed"<<endl;
+            InsObjPtrs[i]->printInsObj(cpu);
+        } 
+
         mips_test_end_test(testId, passed, msg);
+
+        // 5 - Set pc manually if step returned an exception or failed
+        if(err){
+            err = mips_cpu_set_pc(cpu, pc+4);
+            if(err) cout<<" Could not set pc after step failed"<<endl;
+        }
+
+        // 6 - update values for next loop run
         err = mips_cpu_get_pc(cpu, &pc);
         checkPCGet(err);
     }
@@ -103,24 +111,34 @@ int main()
         // 1 - load ONE instruction in RAM, the one that pc currently points to
         err = loadIns(mem, pc, InsObjPtrs[i]);
 
-        cout<<"before"<<endl;
         testId = mips_test_begin_test(InsObjPtrs[i]->get_name());    
-        cout<<"after"<<endl;
     
         // 2 - put register values in cpu
         InsObjPtrs[i]->SetRegs(cpu);
     
         // 3 - step CPU
         err=mips_cpu_step(cpu);
-        checkStep(err);
         
         // 4 -Check the result
         char* msg = NULL;
     
-        int passed = InsObjPtrs[i]->CheckResult(cpu, &msg);
+        int passed = InsObjPtrs[i]->CheckResult(cpu, err, &msg);
     
+        // Print Ins Obj if instruction failed
+        if(!passed){
+            cout<<"Following instruction failed"<<endl;
+            InsObjPtrs[i]->printInsObj(cpu);
+        } 
+        
         mips_test_end_test(testId, passed, msg);
 
+        // 5 - Set pc manually if step returned an exception or failed
+        if(err){
+            err = mips_cpu_set_pc(cpu, pc+4);
+            if(err) cout<<" Could not set pc after step failed"<<endl;
+        }
+
+        // 6 - update values for next loop run
         err = mips_cpu_get_pc(cpu, &pc);
         checkPCGet(err);
     }

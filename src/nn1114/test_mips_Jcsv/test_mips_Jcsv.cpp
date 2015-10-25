@@ -1,9 +1,9 @@
 #include "test_mips_Jcsv.h"
 
 Jcsv::Jcsv(string nameIn, uint8_t opcodeIn, uint32_t argIn,
-             uint32_t resultIn, string msgIn) :
+             uint32_t resultIn, uint16_t exceptionIn, string msgIn) :
 
-			InsCSV(nameIn, opcodeIn, msgIn), arg(argIn),
+			InsCSV(nameIn, opcodeIn, exceptionIn, msgIn), arg(argIn),
 			result(resultIn) {}
 
 
@@ -19,7 +19,7 @@ void Jcsv::SetRegs(mips_cpu_h cpuPtr){
 }
     
 
-int Jcsv::CheckResult(mips_cpu_h cpuPtr, char** msg){
+int Jcsv::CheckResult(mips_cpu_h cpuPtr, mips_error excep_got, char** msg){
     uint32_t calcResult;
 
     // PROBABLY YOU NEED TO READ PC
@@ -29,7 +29,12 @@ int Jcsv::CheckResult(mips_cpu_h cpuPtr, char** msg){
     // Modify message
     *msg = InsCSV::get_msg();
 
-    return result == calcResult;
+    if (excep_got == InsCSV::exception){
+        if (excep_got != mips_Success) return 1;
+        else return result == calcResult;
+    }
+    
+    else return 0;
 }
 
 
@@ -39,6 +44,7 @@ void Jcsv::printInsObj(mips_cpu_h state){
     fprintf(state->logDst, "opcode: %x ", InsCSV::opcode);
     fprintf(state->logDst, "arg: %x ", arg);
     fprintf(state->logDst, "result: %x ", result);
+    fprintf(state->logDst, "exception: %x ", InsCSV::exception);
     fprintf(state->logDst, "msg: %s\n", InsCSV::get_msg());
     
     debugPrintWord(state, Build(), "Jcsv Built Word:");

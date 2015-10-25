@@ -73,9 +73,8 @@ mips_error mips_cpu_set_pc(
 	uint32_t pc			//!< Address of the next instruction to exectute.
 ){	
 	state->PC = pc;
-	// NOTE: YOU SHOULD NOT TOUCH nPC HERE 
-	// THE EXPECTED BEHAVIOUR WOULD BE TO SET PC ONLY AND UPDATE nPC AT THE NEXT STEP CALL
-	//state->nPC = state->PC + BLOCKSIZE;
+	// NOTE: THE EXPECTED BEHAVIOUR WOULD BE TO SET BOTH PC AND nPC
+	state->nPC = state->PC + BLOCKSIZE;
 
 	return mips_Success;
 }

@@ -5,7 +5,6 @@ void checkWrap(mips_error err, char* msg){
     if(err!=mips_Success){
         fprintf(stderr,"%s\n", msg);
         fprintf(stderr, "Error code: %x\n", err);
-        exit(1);
     }
 }
 

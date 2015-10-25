@@ -27,30 +27,30 @@ static void parseIns(const CSVRow& RowObj, vector<InsCSV*>& InsObjPtrs){
     int size = RowObj.size();
     InsCSV* InsCSVPtr;
 
-    for(int i=0; i<RowObj.size();i++){
+    /*for(int i=0; i<RowObj.size();i++){
             cout<<RowObj[i]<<endl;
-        }
+        }*/
 
-    if(size==11){       // R-type instruction
+    if(size==12){       // R-type instruction
         InsCSVPtr = new Rcsv(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint8_t)(toint(RowObj[2])), 
                                             (uint8_t)(toint(RowObj[3])), (uint8_t)(toint(RowObj[4])), 
                                             (uint8_t)(toint(RowObj[5])), (uint8_t)(tohex(RowObj[6])),
                                             (uint32_t)(toint(RowObj[7])), (uint32_t)(toint(RowObj[8])), 
-                                            (uint32_t)(toint(RowObj[9])), RowObj[10] );
+                                            (uint32_t)(toint(RowObj[9])), (uint16_t)(tohex(RowObj[10])), RowObj[11] );
         InsObjPtrs.push_back(InsCSVPtr);
     }
 
-    else if(size==8){   // I-type instruction
+    else if(size==9){   // I-type instruction
         InsCSVPtr = new Icsv(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint8_t)(toint(RowObj[2])), 
                                             (uint8_t)(toint(RowObj[3])), (uint16_t)(toint(RowObj[4])), 
                                             (uint32_t)(toint(RowObj[5])), (uint32_t)(toint(RowObj[6])),
-                                            RowObj[7] );
+                                            (uint16_t)(tohex(RowObj[7])), RowObj[8] );
         InsObjPtrs.push_back(InsCSVPtr);
     }
 
-    else if(size==5){   // J-type instruction
-        InsCSVPtr = new Jcsv(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint32_t)(toint(RowObj[2])), 
-                                            (uint32_t)(toint(RowObj[3])), RowObj[4] );
+    else if(size==6){   // J-type instruction
+        InsCSVPtr = new Jcsv(RowObj[0], (uint8_t)(tohex(RowObj[1])), (uint32_t)(toint(RowObj[2])), 
+                                        (uint32_t)(toint(RowObj[3])), (uint16_t)(tohex(RowObj[4])), RowObj[5] );
         InsObjPtrs.push_back(InsCSVPtr);
     }
 

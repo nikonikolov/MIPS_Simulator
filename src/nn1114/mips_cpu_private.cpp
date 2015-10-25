@@ -17,7 +17,7 @@
 
 
 static bool check_negative(const uint32_t& arg){
-	if (arg<=0x0FFFFFFF) return 0;
+	if (arg<=0x7FFFFFFF) return 0;
 	else return 1;
 }
 
