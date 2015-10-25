@@ -7,8 +7,8 @@ class InsICSV : public InsCSV {
 
 public:
 	
-	InsICSV(char* nameIn, uint8_t opcodeIn, uint8_t rsIn, uint8_t rdIn, uint16_t immIn,
-			 uint32_t src1In, uint32_t resultIn, char* msgIn);
+	InsICSV(string nameIn, uint8_t opcodeIn, uint8_t rsIn, uint8_t rdIn, uint16_t immIn,
+			 uint32_t src1In, uint32_t resultIn, string msgIn);
 
 	~InsICSV(){}
 

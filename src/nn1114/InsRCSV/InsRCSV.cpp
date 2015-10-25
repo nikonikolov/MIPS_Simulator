@@ -1,7 +1,7 @@
 #include "InsRCSV.h"
 
-InsRCSV::InsRCSV(char* nameIn, uint8_t opcodeIn /*=0*/, uint8_t rsIn, uint8_t rtIn, uint8_t rdIn, uint8_t shiftIn /*=0*/, uint8_t fnIn,
-			 uint32_t src1In, uint32_t src2In, uint32_t resultIn, char* msgIn)	:
+InsRCSV::InsRCSV(string nameIn, uint8_t opcodeIn /*=0*/, uint8_t rsIn, uint8_t rtIn, uint8_t rdIn, uint8_t shiftIn /*=0*/, uint8_t fnIn,
+			 uint32_t src1In, uint32_t src2In, uint32_t resultIn, string msgIn)	:
 			
 			InsCSV(nameIn, opcodeIn, msgIn), rs(rsIn), rt(rtIn), rd(rdIn), shift(shiftIn), fn(fnIn),
 			src1(src1In), src2(src2In), result(resultIn) {}
@@ -35,7 +35,7 @@ int InsRCSV::CheckResult(mips_cpu_h cpuPtr, char** msg){
     checkRegGet(err);
 
     // Modify message
-    *msg = InsCSV::msg;
+    *msg = InsCSV::get_msg();
 
     // NOTE : C STORES NEGATIVE NUMBERS INSIDE UINT TYPE WITH THEIR TWO'S COMLEMENT EQUIVALENT, SO NO ADDITIONAL CHECKS ARE REQUIRED
     return result == calcResult;
@@ -43,7 +43,7 @@ int InsRCSV::CheckResult(mips_cpu_h cpuPtr, char** msg){
 
 void InsRCSV::printInsObj(mips_cpu_h state){
     fprintf(state->logDst, "InsRCSV Object values: ");
-    fprintf(state->logDst, "name: %s ", InsCSV::name);
+    fprintf(state->logDst, "name: %s ", InsCSV::get_name());
     fprintf(state->logDst, "opcode: %x ", InsCSV::opcode);
     fprintf(state->logDst, "rs: %d ", rs);
     fprintf(state->logDst, "rt: %d ", rt);
@@ -53,7 +53,7 @@ void InsRCSV::printInsObj(mips_cpu_h state){
     fprintf(state->logDst, "src1: %d ", src1);
     fprintf(state->logDst, "src2: %d ", src2);
     fprintf(state->logDst, "result: %d ", result);
-    fprintf(state->logDst, "msg: %s\n", InsCSV::msg);
+    fprintf(state->logDst, "msg: %s\n", InsCSV::get_msg());
     
     debugPrintWord(state, Build(), "InsRCSV Built Word:");
 }

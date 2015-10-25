@@ -5,12 +5,14 @@
 #include "../test_mips_exitcheck.h"
 #include "../common_print.h"
 
+#include <string>
+
 class InsCSV{
 
 public:
 
 	//InsCSV();
-	InsCSV(char* name_in, uint8_t opcode_in, char* msg_in = NULL);
+	InsCSV(string name_in, uint8_t opcode_in, string msg_in = NULL);
 
 	virtual ~InsCSV(){}
 
@@ -19,13 +21,16 @@ public:
 	virtual void SetRegs(mips_cpu_h cpuPtr) =0;
 	virtual void printInsObj(mips_cpu_h state) =0;
 
-	char* get_name() const;
-	char* get_msg() const;
+//	char* get_name() const;
+//	char* get_msg() const;
+
+	char* get_name();
+	char* get_msg();
 
 protected:
-	char* name;
+	string name;
 	uint8_t opcode;
-	char* msg;		// optional message for an instructions
+	string msg;		// optional message for an instructions
 };
 
 #endif

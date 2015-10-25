@@ -1,7 +1,7 @@
 #include "InsJCSV.h"
 
-InsJCSV::InsJCSV(char* nameIn, uint8_t opcodeIn, uint32_t argIn,
-             uint32_t resultIn, char* msgIn) :
+InsJCSV::InsJCSV(string nameIn, uint8_t opcodeIn, uint32_t argIn,
+             uint32_t resultIn, string msgIn) :
 
 			InsCSV(nameIn, opcodeIn, msgIn), arg(argIn),
 			result(resultIn) {}
@@ -27,7 +27,7 @@ int InsJCSV::CheckResult(mips_cpu_h cpuPtr, char** msg){
     //checkRegGet(err);
 
     // Modify message
-    *msg = InsCSV::msg;
+    *msg = InsCSV::get_msg();
 
     return result == calcResult;
 }
@@ -35,11 +35,11 @@ int InsJCSV::CheckResult(mips_cpu_h cpuPtr, char** msg){
 
 void InsJCSV::printInsObj(mips_cpu_h state){
     fprintf(state->logDst, "InsJCSV Object values: ");
-    fprintf(state->logDst, "name: %s ", InsCSV::name);
+    fprintf(state->logDst, "name: %s ", InsCSV::get_name());
     fprintf(state->logDst, "opcode: %x ", InsCSV::opcode);
     fprintf(state->logDst, "arg: %x ", arg);
     fprintf(state->logDst, "result: %x ", result);
-    fprintf(state->logDst, "msg: %s\n", InsCSV::msg);
+    fprintf(state->logDst, "msg: %s\n", InsCSV::get_msg());
     
     debugPrintWord(state, Build(), "InsJCSV Built Word:");
 }

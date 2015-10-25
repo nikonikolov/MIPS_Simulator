@@ -17,7 +17,7 @@ public:
 
     //CSVRow();
 
-    char* const& operator[](size_t index) const{
+    string const& operator[](size_t index) const{
         return m_data[index];
     }
         
@@ -36,8 +36,7 @@ public:
         m_data.clear();
         
         while( getline(lineStream, cell, ',') ){
-            char* tmp = &cell[0];
-            m_data.push_back(tmp);
+            m_data.push_back(cell);
         }
     }
 
@@ -47,7 +46,7 @@ public:
     }   
 
 private:
-    vector<char*> m_data;
+    vector<string> m_data;
 };
 
 

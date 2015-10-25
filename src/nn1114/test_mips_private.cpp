@@ -17,8 +17,8 @@
 
     return &LineRead;
 }*/
-static uint8_t tohex(char* number){
-    uint8_t result;
+static uint32_t tohex(string number){
+    uint32_t result;
 
     stringstream ss;
     ss << hex << number;
@@ -26,6 +26,16 @@ static uint8_t tohex(char* number){
 
     return result;
 }   
+
+static int toint(string number){
+    int result;
+
+    stringstream ss;
+    ss << number;
+    ss >> result;
+
+    return result;
+} 
         
 
 static void parseIns(const CSVRow& RowObj, vector<InsCSV*>& InsObjPtrs){
@@ -37,23 +47,25 @@ static void parseIns(const CSVRow& RowObj, vector<InsCSV*>& InsObjPtrs){
         }
 
     if(size==11){       // R-type instruction
-        InsCSVPtr = new InsRCSV(RowObj[0],  tohex(RowObj[1]), (uint8_t)(atoi(RowObj[2])), (uint8_t)(atoi(RowObj[3])), 
-                                            (uint8_t)(atoi(RowObj[4])), (uint8_t)(atoi(RowObj[5])), (uint8_t)(atoi(RowObj[6])),
-                                            (uint32_t)(atoi(RowObj[7])), (uint32_t)(atoi(RowObj[8])), (uint32_t)(atoi(RowObj[9])), 
-                                            RowObj[10] );
+        InsCSVPtr = new InsRCSV(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint8_t)(toint(RowObj[2])), 
+                                            (uint8_t)(toint(RowObj[3])), (uint8_t)(toint(RowObj[4])), 
+                                            (uint8_t)(toint(RowObj[5])), (uint8_t)(tohex(RowObj[6])),
+                                            (uint32_t)(toint(RowObj[7])), (uint32_t)(toint(RowObj[8])), 
+                                            (uint32_t)(toint(RowObj[9])), RowObj[10] );
         InsObjPtrs.push_back(InsCSVPtr);
     }
 
     else if(size==8){   // I-type instruction
-        InsCSVPtr = new InsICSV(RowObj[0],  tohex(RowObj[1]), (uint8_t)(atoi(RowObj[2])), (uint8_t)(atoi(RowObj[3])), 
-                                            (uint16_t)(atoi(RowObj[4])), (uint32_t)(atoi(RowObj[5])), (uint32_t)(atoi(RowObj[6])),
+        InsCSVPtr = new InsICSV(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint8_t)(toint(RowObj[2])), 
+                                            (uint8_t)(toint(RowObj[3])), (uint16_t)(toint(RowObj[4])), 
+                                            (uint32_t)(toint(RowObj[5])), (uint32_t)(toint(RowObj[6])),
                                             RowObj[7] );
         InsObjPtrs.push_back(InsCSVPtr);
     }
 
     else if(size==5){   // J-type instruction
-        InsCSVPtr = new InsJCSV(RowObj[0],  tohex(RowObj[1]), (uint32_t)(atoi(RowObj[2])), (uint32_t)(atoi(RowObj[3])),
-                                            RowObj[4] );
+        InsCSVPtr = new InsJCSV(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint32_t)(toint(RowObj[2])), 
+                                            (uint32_t)(toint(RowObj[3])), RowObj[4] );
         InsObjPtrs.push_back(InsCSVPtr);
     }
 

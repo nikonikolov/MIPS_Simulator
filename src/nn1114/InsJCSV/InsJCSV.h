@@ -7,8 +7,8 @@ class InsJCSV : public InsCSV {
 
 public:
 	
-	InsJCSV(char* nameIn, uint8_t opcodeIn, uint32_t argIn,
-			 uint32_t resultIn, char* msgIn);
+	InsJCSV(string nameIn, uint8_t opcodeIn, uint32_t argIn,
+			 uint32_t resultIn, string msgIn);
 
 	~InsJCSV(){}
 
