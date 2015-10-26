@@ -1,13 +1,70 @@
 #include "mips_cpu_decode.h"
 
 // R-type instuctions
-const vector<InsObjR> PtrR = {	InsObjR(0x20 /*100000*/, "add", &add), 
-								InsObjR(0x21 /*100001*/, "addu", &addu) 
+const vector<InsObjR> PtrR = {	InsObjR(0x20 /*100000*/, "add", 	&add), 
+								InsObjR(0x21 /*100001*/, "addu", 	&addu), 
+								InsObjR(0x22 /*100010*/, "sub", 	&sub), 
+								InsObjR(0x23 /*100011*/, "subu", 	&subu), 
+								
+								InsObjR(0x24 /*100100*/, "and", 	&andr), 
+								InsObjR(0x25 /*100101*/, "or",		&orr), 
+								InsObjR(0x26 /*100110*/, "xor",		&xorr), 
+								
+								InsObjR(0x1A /*011010*/, "div", 	&divr), 
+								InsObjR(0x1B /*011011*/, "divu", 	&divu), 
+								InsObjR(0x28 /*011000*/, "mult",	&mult), 
+								InsObjR(0x29 /*011001*/, "multu",	&multu), 
+
+								InsObjR(0x10 /*010000*/, "mfhi", 	&mfhi), 
+								InsObjR(0x12 /*010010*/, "mflo", 	&mflo), 
+								InsObjR(0x11 /*010001*/, "mthi", 	&mthi), 
+								InsObjR(0x13 /*010011*/, "mtlo", 	&mtlo), 
+								
+								InsObjR(0x00 /*000000*/, "sll",		&sll), 
+								InsObjR(0x02 /*000010*/, "srl",		&srl), 
+								InsObjR(0x04 /*000100*/, "sllv",	&sllv), 
+								InsObjR(0x06 /*000110*/, "srlv",	&srlv), 
+								InsObjR(0x03 /*000011*/, "sra",		&sra), 
+								InsObjR(0x07 /*000111*/, "srav",	&srav), 
+
+								InsObjR(0x09 /*001001*/, "jalr", 	&jalr), 
+								InsObjR(0x08 /*001000*/, "jr", 		&jr), 
+
+								InsObjR(0x2A /*101010*/, "slt",		&slt), 
+								InsObjR(0x2B /*101011*/, "sltu",	&sltu) 
 						 	 };
 
 // I-type instructions
-const vector<InsObjI> PtrI = { 	InsObjI(0x08 /*001000*/, "addi", &addi), 
-								InsObjI(0x09 /*001001*/, "addiu", &addiu) 
+const vector<InsObjI> PtrI = { 	InsObjI(0x08 /*001000*/, "addi", 	&addi), 
+								InsObjI(0x09 /*001001*/, "addiu", 	&addiu),
+
+								InsObjI(0x0C /*001100*/, "andi", 	&andi), 
+								InsObjI(0x0D /*001101*/, "ori", 	&ori), 
+								InsObjI(0x0E /*001110*/, "xori", 	&xori), 
+
+								// NOTE: YOU NEED TO PROCESS BLTZ,BLTZAL, BGEZ, BGEZAL INSIDE THIS ONE AS WELL
+								InsObjI(0x01 /*000001*/, "b", 		&b),
+								InsObjI(0x04 /*000100*/, "beq", 	&beq), 
+								InsObjI(0x05 /*000101*/, "bne", 	&bne), 								 		
+								InsObjI(0x06 /*000110*/, "blez", 	&blez), 
+								InsObjI(0x07 /*000111*/, "bgtz", 	&bgtz), 
+
+								InsObjI(0x23 /*100011*/, "lw",		&lw), 
+								InsObjI(0x21 /*100001*/, "lh",		&lh), 
+								InsObjI(0x20 /*100000*/, "lb",		&lb), 
+								InsObjI(0x22 /*100010*/, "lwl",		&lwl), 
+								InsObjI(0x26 /*100110*/, "lwr",		&lwr), 
+								InsObjI(0x25 /*100101*/, "lhu",		&lhu), 
+								InsObjI(0x24 /*100100*/, "lbu",		&lbu), 
+								
+								InsObjI(0x0F /*001111*/, "lui",		&lui), 
+								
+								InsObjI(0x2A /*101011*/, "sw",		&sw), 
+								InsObjI(0x29 /*101001*/, "sh",		&sh), 
+								InsObjI(0x28 /*101000*/, "sb",		&sb), 
+								
+								InsObjI(0x0A /*001010*/, "slti",	&slti), 
+								InsObjI(0x0B /*001011*/, "sltiu",	&sltiu) 
 						 	 };
 
 // J-type instructions
