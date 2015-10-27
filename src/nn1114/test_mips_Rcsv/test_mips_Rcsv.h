@@ -15,7 +15,7 @@ public:
 	uint32_t Build();
 	int CheckResult(mips_cpu_h cpuPtr, mips_error excep_got, char** msg);
 	void SetRegs(mips_cpu_h cpuPtr);
-	void printInsObj(mips_cpu_h state);
+	void printInsObj(mips_cpu_h state, mips_error err);
 
 	
 private:

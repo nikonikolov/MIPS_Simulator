@@ -108,7 +108,7 @@ static mips_error extr_I(mips_cpu_h state, uint32_t InsWord, uint32_t& src1, uin
 	uint8_t rs;
 
 	rs = extr_src1(InsWord);
-	rd = extr_dest(InsWord);
+	rd = extr_src2(InsWord);
 	imm = extr_imm(InsWord);
 
 	mips_error err = mips_cpu_get_register(state, rs, &src1);
@@ -166,7 +166,7 @@ mips_error decodeR(mips_cpu_h state, uint32_t InsWord){
 	err = InsObj->debugIns(state, InsWord, result);
 	
 	// write to register
-	return mips_cpu_set_register(state, rd, (uint32_t)result);
+	return mips_cpu_set_register(state, rd, result);
 }
 
 
@@ -196,7 +196,7 @@ mips_error decodeI(mips_cpu_h state, uint32_t InsWord){
 	err = InsObj->debugIns(state, InsWord, result);
 
 	// write to register
-	return mips_cpu_set_register(state, rd, (uint32_t)result);
+	return mips_cpu_set_register(state, rd, result);
 }
 
 

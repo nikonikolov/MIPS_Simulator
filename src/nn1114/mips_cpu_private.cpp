@@ -32,9 +32,10 @@ static bool check_negative(const uint32_t& arg){
 }*/
 
 uint32_t sign_extend(uint16_t arg){
-	if(arg && 0x80000000) return 	((0xFFFF<<16) & 0xFFFF0000) |
-									((arg<<0) 	& 0x0000FFFF);
+	if(arg & 0x8000) return 	((0xFFFF<<16) & 0xFFFF0000) |
+								((arg<<0) 	& 0x0000FFFF);
 	else return (uint32_t)arg;
+	//return ((uint32_t)((int32_t)((int16_t)arg)));
 }
 
 // offset can be a value in register, hence 32bit

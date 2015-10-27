@@ -80,7 +80,7 @@ int main()
         // Print Ins Obj if instruction failed
         if(!passed){
             cout<<"Following instruction failed"<<endl;
-            InsObjPtrs[i]->printInsObj(cpu);
+            InsObjPtrs[i]->printInsObj(cpu, err);
         } 
 
         mips_test_end_test(testId, passed, msg);
@@ -127,7 +127,7 @@ int main()
         // Print Ins Obj if instruction failed
         if(!passed){
             cout<<"Following instruction failed"<<endl;
-            InsObjPtrs[i]->printInsObj(cpu);
+            InsObjPtrs[i]->printInsObj(cpu, err);
         } 
         
         mips_test_end_test(testId, passed, msg);

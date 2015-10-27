@@ -1,5 +1,10 @@
 #include "mips_cpu_ins_set.h"
 
+// NOTE: 0x80000000 returns 0x80000000
+static uint32_t twoscomp(uint32_t number){
+	return ((0xFFFFFFFF^number) + 1);
+}
+
 
 DEFR(add){
 	
@@ -29,8 +34,34 @@ DEFR(addu){
 }
 
 
-DEFR(sub){ return mips_ErrorNotImplemented; }
-DEFR(subu){ return mips_ErrorNotImplemented; }
+DEFR(sub){
+
+	return add(src1, twoscomp(src2), result, shift);
+	/*if(src2 != 0x80000000) return add(src1, twoscomp(src2), result, shift);
+	
+	else{
+		if(src1 != 0x7FFFFFFF) return add( (src1 +1), 0x7FFFFFFF, result, shift);
+		
+		else return mips_ExceptionArithmeticOverflow;	
+	}*/
+}
+
+DEFR(subu){
+
+	return addu(src1, twoscomp(src2), result, shift);
+	/*if(src2 != 0x80000000) return addu(src1, twoscomp(src2), result, shift);
+	
+	else{
+		if(src1 != 0x7FFFFFFF) return addu( (src1 +1), 0x7FFFFFFF, result, shift);
+		
+		else{
+			mips_error err = shift_check(shift);
+			if(err) return err;
+			result = 0xFFFFFFFF;
+			return mips_Success;
+		}	
+	}*/
+}
 
 DEFR(andr){ return mips_ErrorNotImplemented; }
 DEFR(orr){ return mips_ErrorNotImplemented; }

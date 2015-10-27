@@ -4,7 +4,9 @@ Jcsv::Jcsv(string nameIn, uint8_t opcodeIn, uint32_t argIn,
              uint32_t resultIn, uint16_t exceptionIn, string msgIn) :
 
 			InsCSV(nameIn, opcodeIn, exceptionIn, msgIn), arg(argIn),
-			result(resultIn) {}
+			result(resultIn) {
+                if(result==0) calcResult=1;
+            }
 
 
 uint32_t Jcsv::Build(){
@@ -20,7 +22,6 @@ void Jcsv::SetRegs(mips_cpu_h cpuPtr){
     
 
 int Jcsv::CheckResult(mips_cpu_h cpuPtr, mips_error excep_got, char** msg){
-    uint32_t calcResult;
 
     // PROBABLY YOU NEED TO READ PC
     //mips_error err = mips_cpu_get_register(cpuPtr, rd, &calcResult);
@@ -38,7 +39,7 @@ int Jcsv::CheckResult(mips_cpu_h cpuPtr, mips_error excep_got, char** msg){
 }
 
 
-void Jcsv::printInsObj(mips_cpu_h state){
+void Jcsv::printInsObj(mips_cpu_h state, mips_error err){
     fprintf(state->logDst, "Jcsv Object values: ");
     fprintf(state->logDst, "name: %s ", InsCSV::get_name());
     fprintf(state->logDst, "opcode: %x ", InsCSV::opcode);
@@ -47,5 +48,10 @@ void Jcsv::printInsObj(mips_cpu_h state){
     fprintf(state->logDst, "exception: %x ", InsCSV::exception);
     fprintf(state->logDst, "msg: %s\n", InsCSV::get_msg());
     
-    debugPrintWord(state, Build(), "Jcsv Built Word:");
+    if(state->logLevel>=1) debugPrintWord(state, Build(), "Jcsv Built Word:");
+    
+    if(err!=InsCSV::exception) fprintf(state->logDst, "Expected exception: %x, received %x\n", InsCSV::exception, err);
+    else{
+        if(calcResult!=result) fprintf(state->logDst, "Expected result: %d, received %d\n", result, calcResult);
+    }
 }
