@@ -28,6 +28,8 @@ int main()
 
     int testId;
 
+    char* msg = NULL;
+
     /* *********************** CREATE CPU AND RAM *********************** */ 
     mem=mips_mem_create_ram(4096, 4);
     
@@ -56,25 +58,34 @@ int main()
     /* *********************** RUN THE WHOLE PROGRAM LOADED IN MEMORY *********************** */ 
     
     
-    /*
+    
     // LOAD INSTRUCTIONS IN RAM
     err = loadMem(mem, InsObjPtrs);
+    
     uint32_t pc=0;
+    
     for(int j=0, i=0; j<InsObjPtrs.size() && pc<InsObjPtrs.size()*4; j++){
+        
         i = pc/4;
+        
         // 1 - set testId
         testId = mips_test_begin_test(InsObjPtrs[i]->get_name());    
     
         // 2 - put register values in cpu
         InsObjPtrs[i]->SetRegs(cpu);
     
-        // 3 - step CPU
-        err=mips_cpu_step(cpu);
-        checkStep(err);
         
-        // 4 -Check the result
-        char* msg = NULL;
-    
+        // 3 - step CPU
+        err = mips_cpu_step(cpu);
+
+        // 4 - Set pc manually if step returned an exception or failed
+        if(err){
+            err = mips_cpu_set_pc(cpu, pc+4);
+            if(err) cout<<" Could not set pc after step failed"<<endl;
+        }
+
+        
+        // 5 -Check the result
         int passed = InsObjPtrs[i]->CheckResult(cpu, err, &msg);
     
         // Print Ins Obj if instruction failed
@@ -85,24 +96,19 @@ int main()
 
         mips_test_end_test(testId, passed, msg);
 
-        // 5 - Set pc manually if step returned an exception or failed
-        if(err){
-            err = mips_cpu_set_pc(cpu, pc+4);
-            if(err) cout<<" Could not set pc after step failed"<<endl;
-        }
 
         // 6 - update values for next loop run
         err = mips_cpu_get_pc(cpu, &pc);
         checkPCGet(err);
     }
-    */
+    
 
     /* *********************** END RUN THE WHOLE PROGRAM LOADED IN MEMORY *********************** */ 
     
 
     /* *********************** RUN ONE INSTRUCTION AT A TIME *********************** */ 
 
-    uint32_t pc=0;
+    /*uint32_t pc=0;
 
     for(int j=0, i=0; j<InsObjPtrs.size() && pc<InsObjPtrs.size()*4; j++){
 
@@ -141,7 +147,7 @@ int main()
         // 6 - update values for next loop run
         err = mips_cpu_get_pc(cpu, &pc);
         checkPCGet(err);
-    }
+    }*/
 
     /* *********************** END RUN ONE INSTRUCTION AT A TIME *********************** */ 
 

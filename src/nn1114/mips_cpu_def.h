@@ -18,6 +18,9 @@ struct mips_cpu_impl{
 
 	uint32_t regs[REGS];
 	
+	uint32_t HI;
+	uint32_t LO;
+
 	mips_mem_h memPtr;	
 
 	unsigned logLevel;

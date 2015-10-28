@@ -32,10 +32,9 @@ static bool check_negative(const uint32_t& arg){
 }*/
 
 uint32_t sign_extend(uint16_t arg){
-	if(arg & 0x8000) return 	((0xFFFF<<16) & 0xFFFF0000) |
+	if(arg & 0x8000) return 	(0xFFFF0000) |
 								((arg<<0) 	& 0x0000FFFF);
 	else return (uint32_t)arg;
-	//return ((uint32_t)((int32_t)((int16_t)arg)));
 }
 
 // offset can be a value in register, hence 32bit
@@ -58,8 +57,8 @@ mips_error check_overflow(const uint32_t& src1, const uint32_t& src2, const uint
 }
 
 
-mips_error shift_check(const uint8_t& shift){
-    if(shift!=0x00) return mips_ExceptionInvalidInstruction;
+mips_error argzerocheck(const uint8_t& arg){
+    if(arg!=0x00) return mips_ExceptionInvalidInstruction;
     return mips_Success;
 }
 

@@ -123,7 +123,7 @@ void readFile(string filename, vector<InsCSV*>& InsObjPtrs){
 mips_error loadMem(mips_mem_h mem, vector<InsCSV*>& InsObjPtrs){
 
     for(int i=0; i<InsObjPtrs.size(); i++){
-        mips_error err = loadIns(mem, i*4 - 1, InsObjPtrs[i]);
+        mips_error err = loadIns(mem, i*4, InsObjPtrs[i]);
         if(err) return err; 
     }
 

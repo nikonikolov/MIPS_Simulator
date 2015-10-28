@@ -84,9 +84,10 @@ static FP insType(uint8_t instype){
 }
 
 
-static mips_error extr_R(mips_cpu_h state, uint32_t InsWord, uint32_t& src1, uint32_t& src2, uint8_t& rd, uint8_t& shift){
+static mips_error extr_R(mips_cpu_h state, uint32_t InsWord, uint32_t& src1, uint32_t& src2, uint8_t& rs, uint8_t& rt, 
+							uint8_t& rd, uint8_t& shift){
 
-	uint8_t rs, rt;
+	//uint8_t rs, rt;
 
 	rs = extr_src1(InsWord);
 	rt = extr_src2(InsWord);
@@ -152,14 +153,14 @@ mips_error decodeR(mips_cpu_h state, uint32_t InsWord){
 
 	// decode instruction
 	uint32_t src1, src2;
-	uint8_t rd, shift;
-	extr_R(state, InsWord, src1, src2, rd, shift);
+	uint8_t rs, rt, rd, shift;
+	extr_R(state, InsWord, src1, src2, rs, rt, rd, shift);
 
 	// declare var to store result from instruction
 	uint32_t result;
 
 	// execute instruction
-	mips_error err = FnImpl(src1, src2, result, shift);
+	mips_error err = FnImpl(state, src1, src2, result, shift, rs, rt, rd);
 	if(err) return printErr(state, err, "Fn: decodeR, execute(FnImpl) unsuccessful");	
 
 	// print if logLevel is set
