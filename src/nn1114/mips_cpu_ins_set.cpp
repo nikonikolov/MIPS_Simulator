@@ -104,10 +104,59 @@ DEFR(divu){ return mips_ErrorNotImplemented; }
 DEFR(mult){ return mips_ErrorNotImplemented; }
 DEFR(multu){ return mips_ErrorNotImplemented; }
 
-DEFR(mfhi){ return mips_ErrorNotImplemented; }
-DEFR(mflo){ return mips_ErrorNotImplemented; }
-DEFR(mthi){ return mips_ErrorNotImplemented; }
-DEFR(mtlo){ return mips_ErrorNotImplemented; }
+DEFR(mfhi){ 
+    mips_error err = argzerocheck(rs);
+	if(err) return err;
+    err = argzerocheck(rt);
+	if(err) return err;
+    err = argzerocheck(shift);
+	if(err) return err;
+	
+	result = state->HI;
+
+	return mips_Success; 
+}
+
+DEFR(mflo){ 
+    mips_error err = argzerocheck(rs);
+	if(err) return err;
+    err = argzerocheck(rt);
+	if(err) return err;
+    err = argzerocheck(shift);
+	if(err) return err;
+	
+	result = state->LO;
+
+	return mips_Success; 
+}
+
+DEFR(mthi){ 
+    mips_error err = argzerocheck(rt);
+	if(err) return err;
+    err = argzerocheck(rd);
+	if(err) return err;
+    err = argzerocheck(shift);
+	if(err) return err;
+	
+	state->HI = src1;
+	result = 0;
+
+	return mips_Success; 
+}
+
+DEFR(mtlo){ 
+    mips_error err = argzerocheck(rt);
+	if(err) return err;
+    err = argzerocheck(rd);
+	if(err) return err;
+    err = argzerocheck(shift);
+	if(err) return err;
+	
+	state->LO = src1;
+	result = 0;
+
+	return mips_Success; 
+}
 
 DEFR(sll){ 
     mips_error err = argzerocheck(rs);
@@ -260,7 +309,15 @@ DEFI(xori){
 }
 
 
-DEFI(b){ return mips_ErrorNotImplemented; }
+DEFI(b){ 
+	if(rd==0x01) return bgez(state, src1, imm, result, rs, rd);
+	if(rd==0x11) return bgezal(state, src1, imm, result, rs, rd);
+	if(rd==0x00) return bltz(state, src1, imm, result, rs, rd);
+	if(rd==0x10) return bltzal(state, src1, imm, result, rs, rd);
+	
+	return mips_ErrorNotImplemented; 
+}
+
 DEFI(bltz){ return mips_ErrorNotImplemented; }
 DEFI(bltzal){ return mips_ErrorNotImplemented; }
 DEFI(bgez){ return mips_ErrorNotImplemented; }
@@ -268,15 +325,14 @@ DEFI(bgezal){ return mips_ErrorNotImplemented; }
 
 DEFI(beq){  
 	uint32_t src2;
-	// HOW TO DEAL WITH ERROR CODE
-	mips_cpu_get_register(state, rd, &src2);
-	// make sure you don't change state
-	result=src2;
+	mips_cpu_get_register(state, rd, &src2);	// rd is already cut to 5 bits, no error can be received
 	
+	result=src2;								// make sure you don't change state of cpu after you go back to call
+
 	if(src1 == src2){
 		imm = (imm<<2);
 		uint32_t nPC, branch;
-		mips_error err = mips_cpu_get_npc(state, &nPC);
+		mips_cpu_get_npc(state, &nPC);
 		
 		branch = nPC + imm;
 		
@@ -290,10 +346,10 @@ DEFI(beq){
 		// Destination address overflow
 		if(!immNeg && nPCNeg && !branchNeg) return mips_ExceptionInvalidAddress;
 
-		err = mips_cpu_set_branch(state, imm);
+		mips_cpu_set_branch(state, imm);	// imm last 2 bits are already zero, no error can be received
 	
-		// THINK HOW TO DEAL WITH ERROR
 	}
+
 	return mips_Success;
 }
 
@@ -311,7 +367,27 @@ DEFI(lbu){ return mips_ErrorNotImplemented; }
 
 DEFI(lui){ return mips_ErrorNotImplemented; }
 
-DEFI(sw){ return mips_ErrorNotImplemented; }
+DEFI(sw){ 
+	
+	imm = imm + src1;
+	if(imm & 0x00000003) return mips_ExceptionInvalidAddress;
+	
+	uint32_t src2;
+	mips_cpu_get_register(state, rd, &src2);	// rd is already cut to 5 bits, no error can be received
+
+	// Load in Memory  
+    mips_error err = mips_mem_write(
+        steate->mem,                     //!< Handle to target memory
+        imm,                         	 //!< Byte address to start transaction at
+        4,                               //!< Number of bytes to transfer
+        (uint8_t*)&(src2)             	 //!< Receives the target bytes
+    );
+
+    result = src2;
+    return mips_Success; 
+}
+
+
 DEFI(sh){ return mips_ErrorNotImplemented; }
 DEFI(sb){ return mips_ErrorNotImplemented; }
 
