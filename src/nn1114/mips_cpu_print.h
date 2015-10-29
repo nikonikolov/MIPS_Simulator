@@ -1,5 +1,5 @@
-#ifndef common_print_H
-#define common_print_H
+#ifndef mips_cpu_print_H
+#define mips_cpu_print_H
 
 #include "mips.h"
 #include "mips_cpu_def.h"

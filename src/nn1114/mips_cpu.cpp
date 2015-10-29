@@ -2,14 +2,14 @@
 #include "mips_cpu_def.h"
 #include "mips_cpu_private.h"
 #include "mips_cpu_decode.h"
-#include "common_print.h"
-#include "common_end.h"
+#include "mips_cpu_print.h"
 
 
 mips_cpu_h mips_cpu_create(mips_mem_h mem){
 	mips_cpu_h cpuPtr = new mips_cpu_impl;
 	cpuPtr->PC = 0;
 	cpuPtr->nPC = cpuPtr->PC + BLOCKSIZE;
+	cpuPtr->branch = 4;
 	for(int i=0; i<REGS; i++) cpuPtr->regs[i] = 0;
 	cpuPtr->memPtr = mem;
 	
@@ -23,6 +23,7 @@ mips_error mips_cpu_reset(mips_cpu_h state){
 	
 	state->PC = 0;
 	state->nPC = state->PC + BLOCKSIZE;
+	state->branch = 4;
 
 	for(int i=0; i<REGS; i++) state->regs[i] = 0;
 
@@ -72,6 +73,9 @@ mips_error mips_cpu_set_pc(
 	mips_cpu_h state,	//!< Valid (non-empty) handle to a CPU
 	uint32_t pc			//!< Address of the next instruction to exectute.
 ){	
+	// If address is not divisible by 4, error
+	if(pc & 0x00000003) return mips_ExceptionInvalidAddress;
+	
 	state->PC = pc;
 	// NOTE: THE EXPECTED BEHAVIOUR WOULD BE TO SET BOTH PC AND nPC
 	state->nPC = state->PC + BLOCKSIZE;
@@ -104,7 +108,7 @@ mips_error mips_cpu_step(
 	if(err) return printErr(state, err, "Fn: mips_cpu_step, mem_read unsuccessful");	
 	
 	// convert from big endian
-	InsWord = change_endian(InsWord);
+	InsWord = nn1114_change_endian(InsWord);
 
 
 	// Find instruction type
@@ -113,15 +117,13 @@ mips_error mips_cpu_step(
 
 	// decode and execute instruction
 	err = FnImpl(state, InsWord);	
+	
+	// NOTE: YOU SHOULD NOT ADVANCE PC WHEN EXCEPTION OCCURS
 	if(err) return printErr(state, err, "Fn: mips_cpu_step, find and execute unsuccessful");	
 
-	// NOTE: YOU SHOULD NOT ADVANCE PC WHEN EXCEPTION OCCURS
 
-	
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// DON'T FORGET TO ACCOUNT FOR BRANCHES
-
-	advance_pc(state, (uint32_t)BLOCKSIZE);
+	// BRANCHES CHANGE nPC DIRECTLY SO THAT WHEN IT IS INCREMENTED HERE, IT RESULTS IN THE PROPER BRANCH ADDRESS
+	advance_pc(state, state->branch);
 
 	return mips_Success;	
 }

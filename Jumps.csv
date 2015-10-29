@@ -1,0 +1,5 @@
+sltiu, 	0x0B, 	4, 	7,  	-1, 			1, 				1, 			0x00, 	-1 > 1 unsigned comp
+beq, 	0x04, 	4, 	9,  	-2, 			2, 				1, 	12,		0x00, 3,	2*4=8
+sltiu, 	0x0B, 	4, 	7,  	-1, 			1, 				1, 			0x00, 	-1 > 1 unsigned comp
+sltiu, 	0x0B, 	4, 	7,  	-1, 			1, 				1, 			0x00, 	-1 > 1 unsigned comp
+beq, 	0x04, 	4, 	9,  	2, 				1, 				1, 	28,		0x00, 3,	2*4=8

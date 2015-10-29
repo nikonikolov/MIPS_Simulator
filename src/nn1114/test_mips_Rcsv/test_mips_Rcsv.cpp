@@ -1,11 +1,21 @@
 #include "test_mips_Rcsv.h"
 
-Rcsv::Rcsv(string nameIn, uint8_t opcodeIn /*=0*/, uint8_t rsIn, uint8_t rtIn, uint8_t rdIn, uint8_t shiftIn /*=0*/, uint8_t fnIn,
+Rcsv::Rcsv(string nameIn, uint8_t opcodeIn, uint8_t rsIn, uint8_t rtIn, uint8_t rdIn, uint8_t shiftIn, uint8_t fnIn,
 			 uint32_t src1In, uint32_t src2In, uint32_t resultIn, uint16_t exceptionIn, string msgIn)	:
 			
 			InsCSV(nameIn, opcodeIn, exceptionIn, msgIn), rs(rsIn), rt(rtIn), rd(rdIn), shift(shiftIn), fn(fnIn),
 			src1(src1In), src2(src2In), result(resultIn) {
                 if(result==0) calcResult=1;
+                else calcResult=0;
+            }
+
+Rcsv::Rcsv(string nameIn, uint8_t opcodeIn, uint8_t rsIn, uint8_t rtIn, uint8_t rdIn, uint8_t shiftIn, uint8_t fnIn,
+        uint32_t src1In, uint32_t src2In, uint32_t resultIn, uint16_t exceptionIn, uint8_t JumpIn, string msgIn):
+
+            InsCSV(nameIn, opcodeIn, exceptionIn, msgIn, JumpIn), rs(rsIn), rt(rtIn), rd(rdIn), shift(shiftIn), fn(fnIn),
+            src1(src1In), src2(src2In), result(resultIn) {
+                if(result==0) calcResult=1;
+                else calcResult=0;
             }
 
 
@@ -32,7 +42,22 @@ void Rcsv::SetRegs(mips_cpu_h cpuPtr){
 
 int Rcsv::CheckResult(mips_cpu_h cpuPtr, mips_error excep_got, char** msg){
 
-    mips_error err = mips_cpu_get_register(cpuPtr, rd, &calcResult);
+    mips_error err;
+    /*static PC;
+    mips_error err;
+
+    if(Jump){
+        // if first check, get current PC, before instruction is executed
+        if(JumpTmp==Jump){
+            err = mips_cpu_get_pc(cpuPtr, &PC);
+            return 1;
+        }
+
+
+    }*/
+
+    // If not a Jump
+    err = mips_cpu_get_register(cpuPtr, rd, &calcResult);
     checkRegGet(err);
 
     // Modify message
@@ -47,24 +72,23 @@ int Rcsv::CheckResult(mips_cpu_h cpuPtr, mips_error excep_got, char** msg){
     else return 0;
 }
 
-void Rcsv::printInsObj(mips_cpu_h state, mips_error err){
-    fprintf(state->logDst, "Rcsv Object values: ");
-    fprintf(state->logDst, "name: %s ", InsCSV::get_name());
-    fprintf(state->logDst, "opcode: %x ", InsCSV::opcode);
-    fprintf(state->logDst, "rs: %d ", rs);
-    fprintf(state->logDst, "rt: %d ", rt);
-    fprintf(state->logDst, "rd: %d ", rd);
-    fprintf(state->logDst, "shift: %x ", shift);
-    fprintf(state->logDst, "fn: %x ", fn);
-    fprintf(state->logDst, "src1: %d ", src1);
-    fprintf(state->logDst, "src2: %d ", src2);
-    fprintf(state->logDst, "result: %d ", result);
-    fprintf(state->logDst, "exception: %x ", InsCSV::exception);
-    fprintf(state->logDst, "msg: %s\n", InsCSV::get_msg());
+void Rcsv::printInsObj(FILE *dest, mips_error err){
+    fprintf(dest, "Rcsv Object values: ");
+    fprintf(dest, "name: %s ", InsCSV::get_name());
+    fprintf(dest, "opcode: %x ", InsCSV::opcode);
+    fprintf(dest, "rs: %d ", rs);
+    fprintf(dest, "rt: %d ", rt);
+    fprintf(dest, "rd: %d ", rd);
+    fprintf(dest, "shift: %x ", shift);
+    fprintf(dest, "fn: %x ", fn);
+    fprintf(dest, "src1: %d ", src1);
+    fprintf(dest, "src2: %d ", src2);
+    fprintf(dest, "result: %d ", result);
+    fprintf(dest, "exception: %x ", InsCSV::exception);
+    fprintf(dest, "msg: %s\n", InsCSV::get_msg());
     
-    if(state->logLevel>=1) debugPrintWord(state, Build(), "Rcsv Built Word:");
-    if(err!=InsCSV::exception) fprintf(state->logDst, "Expected exception: %x, received %x\n", InsCSV::exception, err);
+    if(err!=InsCSV::exception) fprintf(dest, "Expected exception: %x, received %x\n", InsCSV::exception, err);
     else{
-        if(calcResult!=result) fprintf(state->logDst, "Expected result: %d, received %d\n", result, calcResult);
+        if(calcResult!=result) fprintf(dest, "Expected result: %d, received %d\n", result, calcResult);
     }
 }

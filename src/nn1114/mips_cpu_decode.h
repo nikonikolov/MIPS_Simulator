@@ -2,7 +2,7 @@
 #define mips_cpu_decode_h
 
 #include "mips.h"		// required for var types
-#include "common_print.h"
+#include "mips_cpu_print.h"
 #include "mips_cpu_Ins/mips_cpu_Ins.h"
 #include "mips_cpu_InsI/mips_cpu_InsI.h"
 #include "mips_cpu_InsR/mips_cpu_InsR.h"

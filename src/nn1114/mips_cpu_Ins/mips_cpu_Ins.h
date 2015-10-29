@@ -6,7 +6,7 @@
 #include "mips.h"
 #include "../mips_cpu_def.h"
 #include "../mips_cpu_private.h"
-#include "../common_print.h"
+#include "../mips_cpu_print.h"
 
 
 template <class FNPTR>

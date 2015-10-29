@@ -1,4 +1,4 @@
-#include "common_print.h"
+#include "mips_cpu_print.h"
 
 /* *********************** HELP FUNCTIONS NEEDED ONLY IN THE FUNCTIONS IN THE CORRESPONDING HEADER *********************** */ 
 

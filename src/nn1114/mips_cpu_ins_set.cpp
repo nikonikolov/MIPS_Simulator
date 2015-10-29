@@ -265,7 +265,38 @@ DEFI(bltz){ return mips_ErrorNotImplemented; }
 DEFI(bltzal){ return mips_ErrorNotImplemented; }
 DEFI(bgez){ return mips_ErrorNotImplemented; }
 DEFI(bgezal){ return mips_ErrorNotImplemented; }
-DEFI(beq){ return mips_ErrorNotImplemented; }
+
+DEFI(beq){  
+	uint32_t src2;
+	// HOW TO DEAL WITH ERROR CODE
+	mips_cpu_get_register(state, rd, &src2);
+	// make sure you don't change state
+	result=src2;
+	
+	if(src1 == src2){
+		imm = (imm<<2);
+		uint32_t nPC, branch;
+		mips_error err = mips_cpu_get_npc(state, &nPC);
+		
+		branch = nPC + imm;
+		
+		bool immNeg = check_negative(imm);
+		bool branchNeg = check_negative(branch);
+		bool nPCNeg = check_negative(nPC);
+		
+		// Negative destination address
+		if(immNeg && !nPCNeg && branchNeg) return mips_ExceptionInvalidAddress;
+		
+		// Destination address overflow
+		if(!immNeg && nPCNeg && !branchNeg) return mips_ExceptionInvalidAddress;
+
+		err = mips_cpu_set_branch(state, imm);
+	
+		// THINK HOW TO DEAL WITH ERROR
+	}
+	return mips_Success;
+}
+
 DEFI(bne){ return mips_ErrorNotImplemented; }
 DEFI(blez){ return mips_ErrorNotImplemented; }
 DEFI(bgtz){ return mips_ErrorNotImplemented; }

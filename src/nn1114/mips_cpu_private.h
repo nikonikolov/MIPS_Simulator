@@ -12,7 +12,7 @@ using namespace std;
 
 /* ************************* CPU RELATED *************************** */
 
-//uint32_t change_endian(uint32_t word);
+uint32_t nn1114_change_endian(uint32_t word);
 
 mips_error advance_pc (mips_cpu_h state, uint32_t offset);
 
@@ -20,10 +20,22 @@ mips_error check_overflow(const uint32_t& src1, const uint32_t& src2, const uint
 
 mips_error argzerocheck(const uint8_t& shift);
 
+bool check_negative(const uint32_t& arg);
+
 mips_error mips_cpu_get_npc(
 	mips_cpu_h state,	//!< Valid (non-empty) handle to a CPU
 	uint32_t *npc		//!< Where to write the byte address too
 );
+
+mips_error mips_cpu_set_npc(
+	mips_cpu_h state,		//!< Valid (non-empty) handle to a CPU
+	uint32_t npc			//!< Address of the next instruction to exectute.
+);	
+
+mips_error mips_cpu_set_branch(
+	mips_cpu_h state,		//!< Valid (non-empty) handle to a CPU
+	uint32_t branch			//!< Address of the next instruction to exectute.
+);	
 
 /* ************************* WORD EXTRACTION *************************** */
 

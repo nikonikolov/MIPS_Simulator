@@ -16,7 +16,7 @@
 }*/
 
 
-static bool check_negative(const uint32_t& arg){
+bool check_negative(const uint32_t& arg){
 	if (arg<=0x7FFFFFFF) return 0;
 	else return 1;
 }
@@ -24,12 +24,12 @@ static bool check_negative(const uint32_t& arg){
 /* *********************** END HELP FUNCTIONS NEEDED ONLY IN THE FUNCTIONS IN THE CORRESPONDING HEADER *********************** */ 
 
 
-/*uint32_t change_endian(uint32_t word){
+uint32_t nn1114_change_endian(uint32_t word){
 	 return ((word << 24) & 0xff000000) |
           	((word <<  8) & 0x00ff0000) |
           	((word >>  8) & 0x0000ff00) |
           	((word >> 24) & 0x000000ff);
-}*/
+}
 
 uint32_t sign_extend(uint16_t arg){
 	if(arg & 0x8000) return 	(0xFFFF0000) |
@@ -41,6 +41,7 @@ uint32_t sign_extend(uint16_t arg){
 mips_error advance_pc (mips_cpu_h state, uint32_t offset){
 	state->PC = state->nPC;
 	state->nPC += offset;
+	state->branch = 4;
 
 	return mips_Success;
 }
@@ -74,6 +75,28 @@ mips_error mips_cpu_get_npc(
 	}
 }
 
+mips_error mips_cpu_set_npc(
+	mips_cpu_h state,		//!< Valid (non-empty) handle to a CPU
+	uint32_t npc			//!< Address of the next instruction to exectute.
+){	
+	// If address is not divisible by 4, error
+	if(npc & 0x00000003) return mips_ExceptionInvalidAddress;
+	
+	state->nPC = npc;
+	return mips_Success;
+}
+
+
+mips_error mips_cpu_set_branch(
+	mips_cpu_h state,		//!< Valid (non-empty) handle to a CPU
+	uint32_t branch			//!< Address of the next instruction to exectute.
+){	
+	// If address is not divisible by 4, error
+	if(branch & 0x00000003) return mips_ExceptionInvalidAddress;
+	
+	state->branch = branch;
+	return mips_Success;
+}
 
 /* ************************* WORD EXTRACTION *************************** */
 uint8_t extr_opcode(uint32_t InsWord){

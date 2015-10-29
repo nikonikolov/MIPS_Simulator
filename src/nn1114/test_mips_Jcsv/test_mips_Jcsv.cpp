@@ -1,11 +1,12 @@
 #include "test_mips_Jcsv.h"
 
 Jcsv::Jcsv(string nameIn, uint8_t opcodeIn, uint32_t argIn,
-             uint32_t resultIn, uint16_t exceptionIn, string msgIn) :
+             uint32_t resultIn, uint16_t exceptionIn, uint8_t JumpIn, string msgIn):
 
-			InsCSV(nameIn, opcodeIn, exceptionIn, msgIn), arg(argIn),
+			InsCSV(nameIn, opcodeIn, exceptionIn, msgIn, JumpIn), arg(argIn),
 			result(resultIn) {
                 if(result==0) calcResult=1;
+                else calcResult=0;
             }
 
 
@@ -39,19 +40,18 @@ int Jcsv::CheckResult(mips_cpu_h cpuPtr, mips_error excep_got, char** msg){
 }
 
 
-void Jcsv::printInsObj(mips_cpu_h state, mips_error err){
-    fprintf(state->logDst, "Jcsv Object values: ");
-    fprintf(state->logDst, "name: %s ", InsCSV::get_name());
-    fprintf(state->logDst, "opcode: %x ", InsCSV::opcode);
-    fprintf(state->logDst, "arg: %x ", arg);
-    fprintf(state->logDst, "result: %x ", result);
-    fprintf(state->logDst, "exception: %x ", InsCSV::exception);
-    fprintf(state->logDst, "msg: %s\n", InsCSV::get_msg());
+void Jcsv::printInsObj(FILE *dest, mips_error err){
+    fprintf(dest, "Jcsv Object values: ");
+    fprintf(dest, "name: %s ", InsCSV::get_name());
+    fprintf(dest, "opcode: %x ", InsCSV::opcode);
+    fprintf(dest, "arg: %x ", arg);
+    fprintf(dest, "result: %x ", result);
+    fprintf(dest, "exception: %x ", InsCSV::exception);
+    fprintf(dest, "Jump: %d ", Jump);
+    fprintf(dest, "msg: %s\n", InsCSV::get_msg());
     
-    if(state->logLevel>=1) debugPrintWord(state, Build(), "Jcsv Built Word:");
-    
-    if(err!=InsCSV::exception) fprintf(state->logDst, "Expected exception: %x, received %x\n", InsCSV::exception, err);
+    if(err!=InsCSV::exception) fprintf(dest, "Expected exception: %x, received %x\n", InsCSV::exception, err);
     else{
-        if(calcResult!=result) fprintf(state->logDst, "Expected result: %d, received %d\n", result, calcResult);
+        if(calcResult!=result) fprintf(dest, "Expected result: %d, received %d\n", result, calcResult);
     }
 }

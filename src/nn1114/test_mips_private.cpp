@@ -37,10 +37,19 @@ static void parseIns(const CSVRow& RowObj, vector<InsCSV*>& InsObjPtrs){
     int size = RowObj.size();
     InsCSV* InsCSVPtr;
 
-    /*for(int i=0; i<RowObj.size();i++){
-            cout<<RowObj[i]<<endl;
-        }*/
 
+    // Jump R-type
+    if(size==13){       // R-type instruction
+        InsCSVPtr = new Rcsv(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint8_t)(touint32(RowObj[2])), 
+                                            (uint8_t)(touint32(RowObj[3])), (uint8_t)(touint32(RowObj[4])), 
+                                            (uint8_t)(touint32(RowObj[5])), (uint8_t)(tohex(RowObj[6])),
+                                            (uint32_t)(touint32(RowObj[7])), (uint32_t)(touint32(RowObj[8])), 
+                                            (uint32_t)(touint32(RowObj[9])), (uint16_t)(tohex(RowObj[10])), 
+                                            (uint8_t)(touint32(RowObj[11])), RowObj[12] );
+        InsObjPtrs.push_back(InsCSVPtr);
+    }
+
+    // Arithmetic R-type
     if(size==12){       // R-type instruction
         InsCSVPtr = new Rcsv(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint8_t)(touint32(RowObj[2])), 
                                             (uint8_t)(touint32(RowObj[3])), (uint8_t)(touint32(RowObj[4])), 
@@ -50,6 +59,17 @@ static void parseIns(const CSVRow& RowObj, vector<InsCSV*>& InsObjPtrs){
         InsObjPtrs.push_back(InsCSVPtr);
     }
 
+    // Jump I-type
+    else if(size==11){   // I-type instruction
+        InsCSVPtr = new Icsv(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint8_t)(touint32(RowObj[2])), 
+                                            (uint8_t)(touint32(RowObj[3])), (uint16_t)(touint32(RowObj[4])), 
+                                            (uint32_t)(touint32(RowObj[5])), (uint32_t)(touint32(RowObj[6])),
+                                            (uint32_t)(touint32(RowObj[7])), (uint16_t)(tohex(RowObj[8])), 
+                                            (uint8_t)(touint32(RowObj[9])), RowObj[10] );
+        InsObjPtrs.push_back(InsCSVPtr);
+    }
+
+    // Arithmetic I-type
     else if(size==9){   // I-type instruction
         InsCSVPtr = new Icsv(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint8_t)(touint32(RowObj[2])), 
                                             (uint8_t)(touint32(RowObj[3])), (uint16_t)(touint32(RowObj[4])), 
@@ -58,9 +78,11 @@ static void parseIns(const CSVRow& RowObj, vector<InsCSV*>& InsObjPtrs){
         InsObjPtrs.push_back(InsCSVPtr);
     }
 
-    else if(size==6){   // J-type instruction
+    // J-type
+    else if(size==7){   // J-type instruction
         InsCSVPtr = new Jcsv(RowObj[0], (uint8_t)(tohex(RowObj[1])), (uint32_t)(touint32(RowObj[2])), 
-                                        (uint32_t)(touint32(RowObj[3])), (uint16_t)(tohex(RowObj[4])), RowObj[5] );
+                                        (uint32_t)(touint32(RowObj[3])), (uint16_t)(tohex(RowObj[4])), 
+                                        (uint8_t)(touint32(RowObj[3])), RowObj[5] );
         InsObjPtrs.push_back(InsCSVPtr);
     }
 
@@ -73,14 +95,14 @@ static void parseIns(const CSVRow& RowObj, vector<InsCSV*>& InsObjPtrs){
     }
 }
 
-/*
-static uint32_t change_endian(uint32_t word){
+
+static uint32_t test_nn1114_change_endian(uint32_t word){
      return ((word << 24) & 0xff000000) |
             ((word <<  8) & 0x00ff0000) |
             ((word >>  8) & 0x0000ff00) |
             ((word >> 24) & 0x000000ff);
 }
-*/
+
 
 /* ************************  READING FROM FILE ************************ */
 
@@ -100,7 +122,7 @@ void readFile(string filename, vector<InsCSV*>& InsObjPtrs){
 
     ifstream infile;
 
-    infile.open("Instructions.csv");
+    infile.open(filename);
     //infile.open(filename);
 
     if(!infile.is_open()){
@@ -137,7 +159,7 @@ mips_error loadIns(mips_mem_h mem, uint32_t address, InsCSV* InsObj){
     // 1 - Build an instruction
     uint32_t InsWord = InsObj->Build();
     
-    InsWord = change_endian(InsWord);
+    InsWord = test_nn1114_change_endian(InsWord);
       
     // Load in RAM  
     mips_error err = mips_mem_write(

@@ -104,9 +104,7 @@ static mips_error extr_R(mips_cpu_h state, uint32_t InsWord, uint32_t& src1, uin
 }
 
 
-static mips_error extr_I(mips_cpu_h state, uint32_t InsWord, uint32_t& src1, uint16_t& imm, uint8_t& rd){
-
-	uint8_t rs;
+static mips_error extr_I(mips_cpu_h state, uint32_t InsWord, uint32_t& src1, uint16_t& imm, uint8_t& rs, uint8_t& rd){
 
 	rs = extr_src1(InsWord);
 	rd = extr_src2(InsWord);
@@ -182,15 +180,15 @@ mips_error decodeI(mips_cpu_h state, uint32_t InsWord){
 
 	// decode instruction
 	uint32_t src1;
-	uint8_t rd;
+	uint8_t rs, rd;
 	uint16_t imm;
-	extr_I(state, InsWord, src1, imm, rd);
+	extr_I(state, InsWord, src1, imm, rs, rd);
 
 	// declare var to store result from instruction
 	uint32_t result;
 
 	// execute instruction
-	mips_error err = FnImpl(src1, sign_extend(imm), result);
+	mips_error err = FnImpl(state, src1, sign_extend(imm), result, rs, rd);
 	if(err) return printErr(state, err, "Fn: decodeI, execute(FnImpl) unsuccessful");	
 
 	// print if logLevel is set

@@ -4,12 +4,12 @@
 #include "mips.h"
 #include "mips_cpu_decode.h"
 #include "mips_cpu_private.h"
-#include "common_print.h"
+#include "mips_cpu_print.h"
 #include <cmath>
 
 #define DEFR(X) mips_error X(mips_cpu_h state, uint32_t src1, uint32_t src2, uint32_t& result, uint8_t shift, uint8_t rs, uint8_t rt, uint8_t rd)
 
-#define DEFI(X) mips_error X(uint32_t src1, uint32_t imm, uint32_t& result)
+#define DEFI(X) mips_error X(mips_cpu_h state, uint32_t src1, uint32_t imm, uint32_t& result, uint8_t rs, uint8_t rd)
 
 #define DEFJ(X) mips_error X(mips_cpu_h state, uint32_t InsWord)
 

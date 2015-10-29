@@ -15,6 +15,7 @@ struct mips_cpu_impl{
 
 	uint32_t PC;
 	uint32_t nPC;
+	uint32_t branch; // branch offset
 
 	uint32_t regs[REGS];
 	
