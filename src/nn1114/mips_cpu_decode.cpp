@@ -59,7 +59,7 @@ const vector<InsObjI> PtrI = { 	InsObjI(0x08 /*001000*/, "addi", 	&addi),
 								
 								InsObjI(0x0F /*001111*/, "lui",		&lui), 
 								
-								InsObjI(0x2A /*101011*/, "sw",		&sw), 
+								InsObjI(0x2B /*101011*/, "sw",		&sw), 
 								InsObjI(0x29 /*101001*/, "sh",		&sh), 
 								InsObjI(0x28 /*101000*/, "sb",		&sb), 
 								
@@ -221,15 +221,12 @@ mips_error decodeJ(mips_cpu_h state, uint32_t InsWord){
 	uint32_t arg;
 	extr_J(InsWord, arg);
 	
-	// declare var to store result from instruction
-	uint32_t result;
-
 	// execute instruction
 	mips_error err = FnImpl(state, arg);
 	if(err) return printErr(state, err, "Fn: decodeJ, execute(FnImpl) unsuccessful");	
 
 	// print if logLevel is set
-	err = InsObj->debugIns(state, InsWord, result);
+	err = InsObj->debugIns(state, InsWord, 0);
 
 	return mips_Success;
 }

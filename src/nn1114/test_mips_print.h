@@ -2,11 +2,8 @@
 #define test_mips_print_H
 
 #include "mips.h"
-#include "mips_cpu_def.h"
-#include "mips_cpu_private.h"
 
-
-mips_error printPC(mips_cpu_h state, FILE *dest);
+//mips_error printPC(mips_cpu_h state, FILE *dest);
 
 void debugPrintWord(FILE *dest, const uint32_t& InsWord, char* id =NULL);
 

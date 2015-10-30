@@ -4,8 +4,11 @@
 #include "mips.h"
 #include "../test_mips_exitcheck.h"
 #include "../test_mips_print.h"
+#include "../test_mips_endian.h"
 
 #include <string>
+
+using namespace std;
 
 #define CONINSCSV 		InsCSV(nameIn, opcodeIn, resultIn, exceptionIn, msgIn)
 #define CONINSCSVJUMP 	InsCSV(nameIn, opcodeIn, resultIn, exceptionIn, msgIn, JumpIn, LinkIn)
@@ -22,7 +25,7 @@ public:
 	virtual ~InsCSV(){}
 
 	virtual uint32_t Build() =0;
-	virtual int CheckResult(mips_cpu_h cpuPtr, mips_error excep_got, char** msg) =0;
+	virtual int CheckResult(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got, char** msg) =0;
 	virtual void SetRegs(mips_cpu_h cpuPtr) =0;
 	virtual void printInsObj(FILE *dest, mips_error err) =0;
 

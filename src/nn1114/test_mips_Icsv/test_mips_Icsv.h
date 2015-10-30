@@ -3,6 +3,8 @@
 
 #include "../test_mips_InsCSV/test_mips_InsCSV.h"
 
+#define CALLSLCHECK(X) X(cpuPtr, mem, excep_got)
+
 class Icsv : public InsCSV {
 
 public:
@@ -20,13 +22,21 @@ public:
 	~Icsv(){}
 
 	uint32_t Build();
-	int CheckResult(mips_cpu_h cpuPtr, mips_error excep_got, char** msg);
+	int CheckResult(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got, char** msg);
 	void SetRegs(mips_cpu_h cpuPtr);
 	void printInsObj(FILE *dest, mips_error err);
 	
 private:
 	int JumpTaken(mips_cpu_h cpuPtr, mips_error excep_got);
 	int JumpNotTaken(mips_cpu_h cpuPtr, mips_error excep_got);
+	
+	int StoreCheck(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got);
+	int StoreWordCheck(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got);
+	int StoreHalfWordCheck(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got);
+	int StoreByteCheck(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got);
+
+	int LoadCheck(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got);
+
 
 
 	uint8_t 		rs;
@@ -37,6 +47,8 @@ private:
 	uint32_t 		src2;				// If jump, value for register rd
 
 	bool 			JumpTake;
+
+	uint32_t		reg31;
 
 	// ABSTRACT CLASS VARIABLES
 	//string 		name;

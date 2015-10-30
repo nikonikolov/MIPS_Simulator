@@ -489,6 +489,7 @@ DEFI(lbu){ return mips_ErrorNotImplemented; }
 DEFI(lui){ return mips_ErrorNotImplemented; }
 
 DEFI(sw){ 
+	write = false;								// make sure you don't change state of cpu after you go back to call
 	
 	imm = imm + src1;
 	if(imm & 0x00000003) return mips_ExceptionInvalidAddress;
@@ -496,21 +497,95 @@ DEFI(sw){
 	uint32_t src2;
 	mips_cpu_get_register(state, rd, &src2);	// rd is already cut to 5 bits, no error can be received
 
+	// Change endian before you store to memory
+	src2 = nn1114_change_endian(src2);
+
 	// Load in Memory  
     mips_error err = mips_mem_write(
-        state->memPtr,                     //!< Handle to target memory
+        state->memPtr,                   //!< Handle to target memory
         imm,                         	 //!< Byte address to start transaction at
         4,                               //!< Number of bytes to transfer
         (uint8_t*)&(src2)             	 //!< Receives the target bytes
     );
 
-    result = src2;
     return mips_Success; 
 }
 
 
-DEFI(sh){ return mips_ErrorNotImplemented; }
-DEFI(sb){ return mips_ErrorNotImplemented; }
+DEFI(sh){ 
+	write = false;								// make sure you don't change state of cpu after you go back to call
+	
+	uint32_t src2, Word, addr;
+
+	imm = imm + src1;
+	if(imm & 0x00000001) return mips_ExceptionInvalidAddress;
+	
+	// calculate aligned address
+	addr = imm - imm%4;		 
+
+	mips_cpu_get_register(state, rd, &src2);	// rd is already cut to 5 bits, no error can be received
+
+	// Get current Word in Memory  
+    mips_mem_read(
+        state->memPtr,                   //!< Handle to target memory
+        addr,                         	 //!< Byte address to start transaction at
+        4,                               //!< Number of bytes to transfer
+        (uint8_t*)&(Word)             	 //!< Receives the target bytes
+    );
+
+    // Change endianness before writing to mem
+    src2 = ( (src2 << 8) & 0x0000FF00)  | ( (src2 >> 8) & 0x000000FF) ;
+    
+    // Construct the right word to write
+    if(imm%4 == 0) Word = (src2 | (Word & 0xFFFF0000));
+    else Word = ( (src2<<16) | (Word & 0x0000FFFF));
+    
+
+	// Load in Memory  
+    mips_mem_write(
+        state->memPtr,                   //!< Handle to target memory
+        addr,                         	 //!< Byte address to start transaction at
+        4,                               //!< Number of bytes to transfer
+        (uint8_t*)&(Word)             	 //!< Receives the target bytes
+    );
+
+    return mips_Success; 
+}
+
+DEFI(sb){ 
+	write = false;								// make sure you don't change state of cpu after you go back to call
+	
+	uint32_t src2, Word, mask=0x00000000, addr;
+
+	imm = imm + src1;
+	addr = imm - imm%4;		// calculate aligned address 
+
+	mips_cpu_get_register(state, rd, &src2);	// rd is already cut to 5 bits, no error can be received
+
+	// Get current Word in Memory  
+    mips_mem_read(
+        state->memPtr,                   //!< Handle to target memory
+        addr,                         	 //!< Byte address to start transaction at
+        4,                               //!< Number of bytes to transfer
+        (uint8_t*)&(Word)             	 //!< Receives the target bytes
+    );
+
+    for(int i=0; i<4; i++){
+    	if(imm%4 != i) mask = (mask | (Word & (0x000000FF<<i*8)));
+    	else mask = (mask | ((src2 & 0x000000FF) <<i*8));
+    }
+
+	// Load in Memory  
+    mips_mem_write(
+        state->memPtr,                   //!< Handle to target memory
+        addr,                         	 //!< Byte address to start transaction at
+        4,                               //!< Number of bytes to transfer
+        (uint8_t*)&(mask)             	 //!< Receives the target bytes
+    );
+
+    return mips_Success; 
+}
+
 
 DEFI(slti){ 
 	

@@ -10,14 +10,13 @@ using namespace std;
 
 int main()
 {
-    cout<<"Enter debug level"<<endl;
+    /*cout<<"Enter debug level"<<endl;
     cout<<"DISABLED: 0"<<endl;
     cout<<"LOW: 1"<<endl;
     cout<<"MIDDLE: 2"<<endl;
-    cout<<"HIGH: 3"<<endl;
-    unsigned debuglvl;
-    cin>>debuglvl;
-    // debuglvl = 0;
+    cout<<"HIGH: 3"<<endl;*/
+    unsigned debuglvl=0;
+    //cin>>debuglvl;
    
     /* *********************** DECLARE VARS *********************** */ 
     mips_mem_h mem;
@@ -30,7 +29,7 @@ int main()
 
     char* msg = NULL;
 
-    uint8_t jump=0;
+    int jump=0;
 
     FILE *dest = stderr;
 
@@ -45,8 +44,11 @@ int main()
 
     /* *********************** READ/INITIALIZE VECTOR *********************** */ 
 
-    readFile("Jumps.csv", InsObjPtrs);
-    readFile("Instructions.csv", InsObjPtrs);
+    //readFile("Jumps.csv", InsObjPtrs);
+    //readFile("Instructions.csv", InsObjPtrs);
+    readFile("JumpsNew.csv", InsObjPtrs);
+    readFile("InstructionsRNew.csv", InsObjPtrs);
+    readFile("InstructionsINew.csv", InsObjPtrs);
 
     /*if(debuglvl>0){
         for(int i=0; i<InsObjPtrs.size();i++){
@@ -82,9 +84,9 @@ int main()
             jump = InsObjPtrs[i]->get_Jump();
             
             // 1 - If current instruction is a jump, check current PC and update args
-            if(jump){
+            if(jump!=0){
                 idx = i;
-                passed = InsObjPtrs[i]->CheckResult(cpu, mips_Success, &msg);
+                passed = InsObjPtrs[i]->CheckResult(cpu, mem, mips_Success, &msg);
                 jumpPassed = passed;            
             }
         }
@@ -99,9 +101,9 @@ int main()
         if(err){
             // If Jump is being tested, check whether expected error is received
             // Replace instruction with NOOP and step pc
-            if(jump){
+            if(jump>0){
                 // 1 -Check whether the expected exception is returned
-                passed = InsObjPtrs[i]->CheckResult(cpu, err, &msg);
+                passed = InsObjPtrs[i]->CheckResult(cpu, mem, err, &msg);
 
                 // 2 - Print Ins Obj if instruction failed
                 if(!passed){
@@ -131,14 +133,14 @@ int main()
 
         
         // 6 - If Jump is currenlty being tested, check result
-        if(jump){ 
+        if(jump>0){ 
             
             // Pass relevant error error code to CheckResult
             mips_error errtmp = mips_Success;
             if(jump==2) errtmp = err;
 
             // 1 - Check the result
-            int tmpJumpPassed = InsObjPtrs[idx]->CheckResult(cpu, errtmp, &msg);
+            int tmpJumpPassed = InsObjPtrs[idx]->CheckResult(cpu, mem, errtmp, &msg);
             jumpPassed = tmpJumpPassed & jumpPassed;
 
             // 2 - Check whether testing is over
@@ -168,7 +170,9 @@ int main()
         // 6 - If Jump is not being currently tested
         else{
             // 7 -Check the result of current instruction
-            int passed = InsObjPtrs[i]->CheckResult(cpu, err, &msg);
+            int passed = InsObjPtrs[i]->CheckResult(cpu, mem, err, &msg);
+
+            if(jump<0) passed = jumpPassed & passed;
 
             // Print Ins Obj if instruction failed
             if(!passed){
@@ -178,6 +182,9 @@ int main()
                 
             // 8 - Finish Current Instruction Test
             mips_test_end_test(testId, passed, msg);
+
+            // If instruction was a store, update jump for next loop run
+            if(jump<0) jump=0;
         }
 
         // FINAL - update values for next loop run
@@ -211,7 +218,7 @@ int main()
         // 4 -Check the result
         char* msg = NULL;
     
-        int passed = InsObjPtrs[i]->CheckResult(cpu, err, &msg);
+        int passed = InsObjPtrs[i]->CheckResult(cpu, mem, err, &msg);
     
         // Print Ins Obj if instruction failed
         if(!passed){
@@ -254,7 +261,7 @@ int main()
             // 1 - If current instruction is a jump, check current PC and update args
             if(jump){
                 idx = i;
-                passed = InsObjPtrs[i]->CheckResult(cpu, mips_Success, &msg);
+                passed = InsObjPtrs[i]->CheckResult(cpu, mem, mips_Success, &msg);
                 jumpPassed = passed;            
             }
         }
@@ -277,7 +284,7 @@ int main()
             // PASS THE PROPER ERROR CODE TO THE CHECK RESULT, MSG IS FINE, GETS UPDATED
             
             // 1 - Check the result
-            int tmpJumpPassed = InsObjPtrs[idx]->CheckResult(cpu, mips_Success, &msg);
+            int tmpJumpPassed = InsObjPtrs[idx]->CheckResult(cpu, mem, mips_Success, &msg);
             jumpPassed = tmpJumpPassed & jumpPassed;
 
             // 2 - Check whether testing is over
@@ -303,7 +310,7 @@ int main()
     // ********* Jump has ended, find out whether current ins is a jump and if not, finish the current test
                 
                 // 5 -Check the result
-                int passed = InsObjPtrs[i]->CheckResult(cpu, err, &msg);
+                int passed = InsObjPtrs[i]->CheckResult(cpu, mem, err, &msg);
 
                 // get_Jump returns 0 after it's last test has finished, hence if only 1 test is required
                 // it is not a jump instruction
@@ -335,7 +342,7 @@ int main()
         // 6 - If Jump is not being currently tested
         else{
             // 7 -Check the result of current instruction
-            int passed = InsObjPtrs[i]->CheckResult(cpu, err, &msg);
+            int passed = InsObjPtrs[i]->CheckResult(cpu, mem, err, &msg);
 
             // Print Ins Obj if instruction failed
             if(!passed){

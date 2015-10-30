@@ -20,7 +20,7 @@ static void printBin(FILE *dest, uint32_t InsWord, char* id){
 /* *********************** DEBUGGING AND PRINTING *********************** */ 
 
 
-mips_error printPC(mips_cpu_h state, FILE *dest){
+/*mips_error printPC(mips_cpu_h state, FILE *dest){
 	uint32_t PC, nPC;
 	
 	mips_cpu_get_pc (state, &PC);
@@ -29,7 +29,7 @@ mips_error printPC(mips_cpu_h state, FILE *dest){
 	debugPrintWord(dest, PC, "PC");
 	debugPrintWord(dest, nPC, "nPC");
 	return mips_Success;
-}
+}*/
 
 
 void debugPrintWord(FILE *dest, const uint32_t& InsWord, char* id /*=NULL*/){

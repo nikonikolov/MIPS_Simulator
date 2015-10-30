@@ -12,13 +12,25 @@ static uint32_t tohex(string number){
     return result;
 }   
 
-static uint32_t touint32(string number){
+/*static uint32_t touint32(string number){
     uint32_t result;
 
     stringstream ss;
     ss << number;
     ss >> result;
 
+    return result;
+}*/
+
+static uint32_t touint32(string number){
+    uint32_t result;
+
+    stringstream ss;
+    ss << number;
+    int64_t tempresult;
+    ss >> tempresult;
+    result = (uint32_t)tempresult;
+    
     return result;
 }
 
@@ -54,6 +66,70 @@ static bool tobool(string number){
         
 
 static void parseIns(const CSVRow& RowObj, vector<InsCSV*>& InsObjPtrs){
+    int size = RowObj.size();
+    InsCSV* InsCSVPtr;
+
+
+    // Jump R-type
+    if(size==15){       // R-type instruction
+        InsCSVPtr = new Rcsv(RowObj[1],     (uint8_t)(tohex(RowObj[2])), (uint8_t)(touint32(RowObj[3])), 
+                                            (uint8_t)(touint32(RowObj[4])), (uint8_t)(touint32(RowObj[5])), 
+                                            (uint8_t)(touint32(RowObj[6])), (uint8_t)(tohex(RowObj[7])),
+                                            (uint32_t)(touint32(RowObj[8])), (uint32_t)(touint32(RowObj[9])), 
+                                            toint(RowObj[10]), tobool(RowObj[11]), (uint32_t)(touint32(RowObj[12])), 
+                                            (uint16_t)(tohex(RowObj[13])), RowObj[14] );
+        InsObjPtrs.push_back(InsCSVPtr);
+    }
+
+    // Arithmetic R-type
+    if(size==13){       // R-type instruction
+        InsCSVPtr = new Rcsv(RowObj[1],     (uint8_t)(tohex(RowObj[2])), (uint8_t)(touint32(RowObj[3])), 
+                                            (uint8_t)(touint32(RowObj[4])), (uint8_t)(touint32(RowObj[5])), 
+                                            (uint8_t)(touint32(RowObj[6])), (uint8_t)(tohex(RowObj[7])),
+                                            (uint32_t)(touint32(RowObj[8])), (uint32_t)(touint32(RowObj[9])), 
+                                            (uint32_t)(touint32(RowObj[10])), (uint16_t)(tohex(RowObj[11])), RowObj[12] );
+        InsObjPtrs.push_back(InsCSVPtr);
+    }
+
+    // Jump I-type
+    else if(size==14){   // I-type instruction
+        InsCSVPtr = new Icsv(RowObj[1],     (uint8_t)(tohex(RowObj[2])), (uint8_t)(touint32(RowObj[3])), 
+                                            (uint8_t)(touint32(RowObj[4])), (uint16_t)(touint32(RowObj[5])), 
+                                            (uint32_t)(touint32(RowObj[6])), (uint32_t)(touint32(RowObj[7])),
+                                            toint(RowObj[8]), tobool(RowObj[9]), tobool(RowObj[10]),
+                                            (uint32_t)(touint32(RowObj[11])), (uint16_t)(tohex(RowObj[12])), 
+                                            RowObj[13] );
+        InsObjPtrs.push_back(InsCSVPtr);
+    }
+
+    // Arithmetic I-type
+    else if(size==10){   // I-type instruction
+        InsCSVPtr = new Icsv(RowObj[1],     (uint8_t)(tohex(RowObj[2])), (uint8_t)(touint32(RowObj[3])), 
+                                            (uint8_t)(touint32(RowObj[4])), (uint16_t)(touint32(RowObj[5])), 
+                                            (uint32_t)(touint32(RowObj[6])), (uint32_t)(touint32(RowObj[7])),
+                                            (uint16_t)(tohex(RowObj[8])), RowObj[9] );
+        InsObjPtrs.push_back(InsCSVPtr);
+    }
+
+    // J-type
+    else if(size==9){   // J-type instruction
+        InsCSVPtr = new Jcsv(RowObj[1],     (uint8_t)(tohex(RowObj[2])), (uint32_t)(touint32(RowObj[3])), 
+                                            toint(RowObj[4]), tobool(RowObj[5]), (uint32_t)(touint32(RowObj[6])), 
+                                            (uint16_t)(tohex(RowObj[7])), RowObj[8] );
+        InsObjPtrs.push_back(InsCSVPtr);
+    }
+
+    else{
+        if(size!=0){
+            cout<<"INVALID INSTRUCTION"<<endl;
+            for(int i=0; i<size; i++) cout<<RowObj[i];
+            cout<<endl;
+        }
+    }
+}
+
+
+/*static void parseIns(const CSVRow& RowObj, vector<InsCSV*>& InsObjPtrs){
     int size = RowObj.size();
     InsCSV* InsCSVPtr;
 
@@ -114,29 +190,18 @@ static void parseIns(const CSVRow& RowObj, vector<InsCSV*>& InsObjPtrs){
             cout<<endl;
         }
     }
-}
+}*/
 
 
-static uint32_t test_nn1114_change_endian(uint32_t word){
+/*static uint32_t test_nn1114_change_endian(uint32_t word){
      return ((word << 24) & 0xff000000) |
             ((word <<  8) & 0x00ff0000) |
             ((word >>  8) & 0x0000ff00) |
             ((word >> 24) & 0x000000ff);
-}
+}*/
 
 
 /* ************************  READING FROM FILE ************************ */
-
-
-/*void readFile(ifstream& infile, vector<InsCSV*>& InsObjPtrs){
-
-    CSVRow RowObj;
-
-    while(infile >> RowObj){
-        parseIns(RowObj, InsObjPtrs);
-    }
-
-}*/
 
 
 void readFile(string filename, vector<InsCSV*>& InsObjPtrs){
@@ -154,8 +219,13 @@ void readFile(string filename, vector<InsCSV*>& InsObjPtrs){
     CSVRow RowObj;
 
     int i=0;
-    
+
     while(infile >> RowObj){
+        if(i==0){
+            i=1;
+            continue;
+        }
+
         parseIns(RowObj, InsObjPtrs);
     }
 

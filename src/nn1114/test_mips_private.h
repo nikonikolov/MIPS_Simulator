@@ -8,6 +8,7 @@
 #include "test_mips_Icsv/test_mips_Icsv.h"
 #include "test_mips_Jcsv/test_mips_Jcsv.h"
 #include "test_mips_exitcheck.h"
+#include "test_mips_endian.h"
 #include "test_mips_CSVRow/test_mips_CSVRow.h"
 
 

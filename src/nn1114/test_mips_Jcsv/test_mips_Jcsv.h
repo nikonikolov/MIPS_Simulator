@@ -14,7 +14,7 @@ public:
 	~Jcsv(){}
 
 	uint32_t Build();
-	int CheckResult(mips_cpu_h cpuPtr, mips_error excep_got, char** msg);
+	int CheckResult(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got, char** msg);
 	void SetRegs(mips_cpu_h cpuPtr);
 	void printInsObj(FILE *dest, mips_error err);
 

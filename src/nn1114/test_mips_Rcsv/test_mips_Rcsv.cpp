@@ -37,7 +37,7 @@ void Rcsv::SetRegs(mips_cpu_h cpuPtr){
 }
     
 
-int Rcsv::CheckResult(mips_cpu_h cpuPtr, mips_error excep_got, char** msg){
+int Rcsv::CheckResult(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got, char** msg){
 
     // If not a Jump
     mips_error err = mips_cpu_get_register(cpuPtr, rd, &calcResult);
