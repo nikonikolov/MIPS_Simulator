@@ -36,6 +36,9 @@ private:
 	int StoreByteCheck(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got);
 
 	int LoadCheck(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got);
+	int LoadWordCheck(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got);
+	int LoadHalfWordCheck(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got);
+	int LoadByteCheck(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got);
 
 
 

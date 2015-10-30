@@ -143,8 +143,68 @@ DEFR(xorr){
 	return mips_Success; 
 }
 
-DEFR(divr){ return mips_ErrorNotImplemented; }
-DEFR(divu){ return mips_ErrorNotImplemented; }
+DEFR(divr){ 
+	write = false;								// make sure you don't change state of cpu after you go back to call
+
+    mips_error err = argzerocheck(rd);
+	if(err) return err;
+    err = argzerocheck(shift);
+	if(err) return err;
+
+	if(src2==0) return mips_ExceptionBreak;
+
+	bool src1_pos = GreaterThanEqualZero(src1);
+	bool src2_pos = GreaterThanEqualZero(src2);
+
+	uint32_t m1, m2;
+	if(!src1_pos) m1 = (uint32_t)twoscomp(src1);
+	else m1 = (uint32_t)src1;
+    
+	if(!src2_pos) m2 = (uint32_t)twoscomp(src2);
+	else m2 = (uint32_t)src2;
+
+
+	uint32_t quotient = (m1/m2);
+	uint32_t remaind = m1%m2;
+
+	if(!src1_pos){
+		quotient++;
+		if(src2_pos) remaind -= src2;
+		else  remaind += src2;
+		remaind = twoscomp(remaind);
+	}
+	
+	if( (src1_pos ^ src2_pos) ) quotient = twoscomp(quotient);
+	
+	state->HI = remaind; 
+	state->LO = quotient;
+
+	return mips_Success; 
+}
+
+
+DEFR(divu){ 
+
+	write = false;								// make sure you don't change state of cpu after you go back to call
+
+    mips_error err = argzerocheck(rd);
+	if(err) return err;
+    err = argzerocheck(shift);
+	if(err) return err;
+
+	if(src2==0) return mips_ExceptionBreak;
+	
+	uint32_t quotient = (src1/src2);
+	uint32_t remaind = src1%src2;
+
+	state->HI = remaind; 
+	state->LO = quotient;
+
+	return mips_Success; 
+
+}
+
+
 DEFR(mult){ 
 	write = false;								// make sure you don't change state of cpu after you go back to call
 
@@ -168,8 +228,8 @@ DEFR(mult){
 
 	if( (src1_pos ^ src2_pos) && product) product = twoscomp64(product);
 	
-	uint32_t HI = (uint32_t)(uint64_t)(product>>32); 
-	uint32_t LO = (uint32_t)(product);
+	state->HI = (uint32_t)(uint64_t)(product>>32); 
+	state->LO = (uint32_t)(product);
 
 	return mips_Success; 
 }
@@ -598,15 +658,157 @@ DEFI(bgtz){
 	return mips_Success;
 }
 
-DEFI(lw){ return mips_ErrorNotImplemented; }
-DEFI(lh){ return mips_ErrorNotImplemented; }
-DEFI(lb){ return mips_ErrorNotImplemented; }
+DEFI(lw){ 
+	
+	imm = imm + src1;
+	if(imm & 0x00000003) return mips_ExceptionInvalidAddress;
+	
+	// Read from Memory  
+    mips_error err = mips_mem_read(
+        state->memPtr,                   //!< Handle to target memory
+        imm,                         	 //!< Byte address to start transaction at
+        4,                               //!< Number of bytes to transfer
+        (uint8_t*)&(result)             	 //!< Receives the target bytes
+    );
+
+    // Change endian before you store in reg
+	result = nn1114_change_endian(result);
+
+    return mips_Success;  
+}
+
+
+DEFI(lh){ 
+	
+	uint32_t addr;
+
+	imm = imm + src1;
+	if(imm & 0x00000001) return mips_ExceptionInvalidAddress;
+	
+	// calculate aligned address
+	addr = imm - imm%4;		 
+
+	// Read from Memory  
+    mips_mem_read(
+        state->memPtr,                   //!< Handle to target memory
+        addr,                         	 //!< Byte address to start transaction at
+        4,                               //!< Number of bytes to transfer
+        (uint8_t*)&(result)             	 //!< Receives the target bytes
+    );
+
+    // Construct the right word to write
+    if(imm%4 == 0){
+    	result = ( (result<<16) & 0xFFFF0000 );
+    } 
+    else{
+    	result = ( result & 0xFFFF0000 );
+    } 
+	
+	result = nn1114_change_endian(result);
+    result = sign_extend((uint16_t)result);
+
+    return mips_Success; 
+}
+
+
+DEFI(lb){ 
+	
+    uint32_t addr;
+
+	imm = imm + src1;
+	
+	// calculate aligned address
+	addr = imm - imm%4;		 
+
+	// Read from Memory  
+    mips_mem_read(
+        state->memPtr,                   //!< Handle to target memory
+        addr,                         	 //!< Byte address to start transaction at
+        4,                               //!< Number of bytes to transfer
+        (uint8_t*)&(result)             	 //!< Receives the target bytes
+    );
+
+    // Construct the right word to write
+    for(int i=0; i<4; i++){
+    	if(imm%4 != i) result = ( 0x000000FF & (result>> i*8) );
+    }
+
+	if(result & 0x00000080) result = (0xFFFFFF00 | result);
+
+    return mips_Success; 
+}
+
 DEFI(lwl){ return mips_ErrorNotImplemented; }
 DEFI(lwr){ return mips_ErrorNotImplemented; }
-DEFI(lhu){ return mips_ErrorNotImplemented; }
-DEFI(lbu){ return mips_ErrorNotImplemented; }
 
-DEFI(lui){ return mips_ErrorNotImplemented; }
+DEFI(lhu){	
+	
+	uint32_t addr;
+
+	imm = imm + src1;
+	if(imm & 0x00000001) return mips_ExceptionInvalidAddress;
+	
+	// calculate aligned address
+	addr = imm - imm%4;		 
+
+	// Read from Memory  
+    mips_mem_read(
+        state->memPtr,                   //!< Handle to target memory
+        addr,                         	 //!< Byte address to start transaction at
+        4,                               //!< Number of bytes to transfer
+        (uint8_t*)&(result)             	 //!< Receives the target bytes
+    );
+
+    // Construct the right word to write
+    if(imm%4 == 0){
+    	result = ( (result<<16) & 0xFFFF0000 );
+    } 
+    else{
+    	result = ( result & 0xFFFF0000 );
+    } 
+	
+	result = nn1114_change_endian(result);
+
+    return mips_Success; 
+}
+
+
+DEFI(lbu){     
+
+	uint32_t addr;
+
+	imm = imm + src1;
+	
+	// calculate aligned address
+	addr = imm - imm%4;		 
+
+	// Read from Memory  
+    mips_mem_read(
+        state->memPtr,                   //!< Handle to target memory
+        addr,                         	 //!< Byte address to start transaction at
+        4,                               //!< Number of bytes to transfer
+        (uint8_t*)&(result)             	 //!< Receives the target bytes
+    );
+
+    // Construct the right word to write
+    for(int i=0; i<4; i++){
+    	if(imm%4 != i) result = ( 0x000000FF & (result>> i*8) );
+    }
+
+	if(result & 0x00000080) result = (0xFFFFFF00 | result);
+
+    return mips_Success;  
+}
+
+DEFI(lui){ 
+
+	mips_error err = argzerocheck(rs);
+	if(err) return err;
+
+	result = ( (imm <<16) & 0xFFFF0000);
+
+    return mips_Success;  
+}
 
 DEFI(sw){ 
 	write = false;								// make sure you don't change state of cpu after you go back to call

@@ -33,7 +33,9 @@ void Icsv::SetRegs(mips_cpu_h cpuPtr){
 	mips_error err = mips_cpu_set_register(cpuPtr, rs, src1);
     checkRegSet(err);
     if(Jump){
-        if(opcode!=0x01 && opcode!=0x07 && opcode!=0x06) mips_error err = mips_cpu_set_register(cpuPtr, rd, src2);
+        if(opcode!=0x01 && opcode!=0x07 && opcode!=0x06 && opcode!=0x23 && opcode!=0x21 && opcode!=0x0F && opcode!=0x25 && opcode!=0x24 && opcode!=0x20){
+            mips_error err = mips_cpu_set_register(cpuPtr, rd, src2);
+        }
         checkRegSet(err);
     }
 }
@@ -312,93 +314,28 @@ int Icsv::StoreByteCheck(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got
 
 int Icsv::LoadCheck(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got){
 
-}
-
-
-
-/*int Icsv::StoreCheck(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got){
-    
-    // Check Mem before execution
+    // Check Register before execution
     if(JumpTmp==Jump){
-        mips_mem_read(
-            mem,                                //!< Handle to target memory
-            (result-result%4),                  //!< Byte address to start transaction at
-            4,                                  //!< Number of bytes to transfer
-            (uint8_t*)&(calcResult)             //!< Receives the target bytes
-        );
+        mips_cpu_get_register(cpuPtr, rd, &calcResult);
 
         JumpTmp++;
+        return 1;
     } 
 
 
     else if(JumpTmp==(Jump+1)){
-        
+        // Allow for another execution of this instruction
+        JumpTmp--;
+
         // Word
-        if(Jump==-1){
-            JumpTmp--;
-            
-            if(excep_got != exception) return 0;
-
-            uint32_t prevCont=calcResult;
-            // NOTE: result holds the resulting address and src2 holds its contents
-            mips_mem_read(
-                mem,                                //!< Handle to target memory
-                result,                             //!< Byte address to start transaction at
-                4,                                  //!< Number of bytes to transfer
-                (uint8_t*)&(calcResult)             //!< Receives the target bytes
-            );
-    
-            
-            if(excep_got == mips_Success) {
-                // Change endian before you compare
-                calcResult = test_nn1114_change_endian(calcResult);
-
-                return src2 == calcResult;
-            }
-
-            // If Exception was detected, check if address was modified
-            else if(excep_got == mips_ExceptionInvalidAddress) return calcResult == prevCont;
-            
-            // If any other exception
-            else return 0;          
-        }
-    
+        if(Jump==-10) return CALLSLCHECK(LoadWordCheck);      
 
         // Half Word
-        if(Jump==-2){
+        if(Jump==-12) return CALLSLCHECK(LoadHalfWordCheck);      
         
-            JumpTmp--;
-            
-            if(excep_got != exception) return 0;
+        // Byte
+        if(Jump==-13) return CALLSLCHECK(LoadByteCheck);      
 
-            uint32_t prevCont=calcResult;
-            mips_mem_read(
-                mem,                                //!< Handle to target memory
-                (result-result%4),                  //!< Byte address to start transaction at
-                4,                                  //!< Number of bytes to transfer
-                (uint8_t*)&(calcResult)             //!< Receives the target bytes
-            );
-
-            // Allow for another execution of this instruction
-
-            uint32_t src2Aligned = test_nn1114_change_endian(src2);;
-            if(excep_got == mips_Success) {
-                if(result%4==2){
-                    src2Aligned = src2Aligned & 0xFFFF0000;
-                    return calcResult == (src2Aligned | (prevCont & 0x0000FFFF) ); 
-                } 
-                else{
-                    src2Aligned = src2Aligned & 0x0000FFFF;
-                    return calcResult == (src2Aligned | (prevCont & 0xFFFF0000) ); 
-                } 
-            }
-
-            // If Exception was detected, check if address was modified
-            else if(excep_got == mips_ExceptionInvalidAddress) return calcResult == prevCont;
-            
-            // If any other exception
-            else return 0;
-        }
         // JumpTmp == Jump / Jump+1 Jump != -1, -2
         else return 0;
     }
@@ -406,4 +343,70 @@ int Icsv::LoadCheck(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got){
     // JumpTmp != Jump / Jump+1
     else return 0;
 }
-*/
+
+int Icsv::LoadWordCheck(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got){
+                
+    if(excep_got != exception) return 0;
+
+    uint32_t Content, prevCont = calcResult;
+    // NOTE: result holds the resulting address and src2 holds its contents
+    mips_mem_read(
+        mem,                                //!< Handle to target memory
+        result,                             //!< Byte address to start transaction at
+        4,                                  //!< Number of bytes to transfer
+        (uint8_t*)&(Content)             //!< Receives the target bytes
+    );
+    
+    mips_cpu_get_register(cpuPtr, rd, &calcResult);
+            
+    if(excep_got == mips_Success) {
+        calcResult = test_nn1114_change_endian(calcResult);
+        return Content == calcResult;
+    }
+
+    // If Exception was detected, check if address was modified
+    else if(excep_got == mips_ExceptionInvalidAddress) return calcResult == prevCont;
+            
+    // If any other exception
+    else return 0;
+}
+
+
+int Icsv::LoadHalfWordCheck(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got){
+
+
+    if(excep_got != exception) return 0;
+
+    uint32_t Content, prevCont = calcResult;
+    mips_mem_read(
+        mem,                                //!< Handle to target memory
+        (result-result%4),                  //!< Byte address to start transaction at
+        4,                                  //!< Number of bytes to transfer
+        (uint8_t*)&(Content)             //!< Receives the target bytes
+    );
+
+    mips_cpu_get_register(cpuPtr, rd, &calcResult);
+
+    uint32_t src2Aligned = 0xFFFF0000 & test_nn1114_change_endian(src2);
+    if(excep_got == mips_Success) {
+        if(result%4==2){
+            Content = ( (Content>>8) & 0x0000FF00) | ( (Content>>24) & 0x000000FF);
+        } 
+        else{
+            Content = ( (Content<<8) & 0x0000FF00) | ( (Content>>8) & 0x000000FF);
+        } 
+        if(opcode == 0x21){
+            if(0x00008000 & Content) Content = Content | 0xFFFF0000;
+        }
+
+        return calcResult == Content;
+    }
+
+    // If Exception was detected, check if address was modified
+    else if(excep_got == mips_ExceptionInvalidAddress) return calcResult == prevCont;
+            
+    // If any other exception
+    else return 0;
+}
+
+int Icsv::LoadByteCheck(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got){}
