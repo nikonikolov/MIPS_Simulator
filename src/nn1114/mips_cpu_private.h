@@ -18,6 +18,8 @@ mips_error advance_pc (mips_cpu_h state, uint32_t offset);
 
 mips_error check_overflow(const uint32_t& src1, const uint32_t& src2, const uint32_t& result);
 
+mips_error check_sub_overflow(const uint32_t& src1, const uint32_t& src2, const uint32_t& result);
+
 mips_error argzerocheck(const uint8_t& shift);
 
 bool check_negative(const uint32_t& arg);

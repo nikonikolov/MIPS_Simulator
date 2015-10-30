@@ -5,6 +5,10 @@ static uint32_t twoscomp(uint32_t number){
 	return ((0xFFFFFFFF^number) + 1);
 }
 
+static uint64_t twoscomp64(uint64_t number){
+	return ((0xFFFFFFFFFFFFFFFF^number) + 1);
+}
+
 static uint32_t zero_extend(uint32_t arg){
 	return 	(0x0000FFFF & arg);
 }
@@ -44,7 +48,7 @@ static bool GreaterThanZero(uint32_t arg){
 	return true;
 }
 
-// Returns true if arg>0 and false otherwise
+// Returns true if arg>=0 and false otherwise
 static bool GreaterThanEqualZero(uint32_t arg){
 	
 	// arg<0
@@ -83,7 +87,26 @@ DEFR(addu){
 
 
 DEFR(sub){
-	return add(state, src1, twoscomp(src2), result, shift, rs, rt, rd, write);
+	mips_error err = argzerocheck(shift);
+	if(err) return err;
+	
+	// do arithmetics
+	result = src1 - src2;
+	
+	// check overflow
+	err = check_sub_overflow(src1, src2, result);
+	if(err) return err;
+
+	return mips_Success;
+
+	/*if(src2==0x80000000){
+		mips_error err = argzerocheck(shift);
+		if(err) return err;
+		result = src1+src2;
+		return mips_Success;
+	} 
+
+	return add(state, src1, twoscomp(src2), result, shift, rs, rt, rd, write);*/
 }
 
 DEFR(subu){
@@ -122,8 +145,64 @@ DEFR(xorr){
 
 DEFR(divr){ return mips_ErrorNotImplemented; }
 DEFR(divu){ return mips_ErrorNotImplemented; }
-DEFR(mult){ return mips_ErrorNotImplemented; }
-DEFR(multu){ return mips_ErrorNotImplemented; }
+DEFR(mult){ 
+	write = false;								// make sure you don't change state of cpu after you go back to call
+
+    mips_error err = argzerocheck(rd);
+	if(err) return err;
+    err = argzerocheck(shift);
+	if(err) return err;
+
+	bool src1_pos = GreaterThanEqualZero(src1);
+	bool src2_pos = GreaterThanEqualZero(src2);
+
+	uint64_t m1, m2;
+	if(!src1_pos) m1 = (uint64_t)twoscomp(src1);
+	else m1 = (uint64_t)src1;
+    
+	if(!src2_pos) m2 = (uint64_t)twoscomp(src2);
+	else m2 = (uint64_t)src2;
+
+
+	uint64_t product = (uint64_t)(m1*m2);
+
+	if( (src1_pos ^ src2_pos) && product) product = twoscomp64(product);
+	
+	uint32_t HI = (uint32_t)(uint64_t)(product>>32); 
+	uint32_t LO = (uint32_t)(product);
+
+	return mips_Success; 
+}
+
+DEFR(multu){ 
+
+	write = false;								// make sure you don't change state of cpu after you go back to call
+
+    mips_error err = argzerocheck(rd);
+	if(err) return err;
+    err = argzerocheck(shift);
+	if(err) return err;
+
+	bool src1_pos = GreaterThanEqualZero(src1);
+	bool src2_pos = GreaterThanEqualZero(src2);
+
+	uint64_t m1, m2;
+	if(!src1_pos) m1 = (uint64_t)twoscomp(src1);
+	else m1 = (uint64_t)src1;
+    
+	if(!src2_pos) m2 = (uint64_t)twoscomp(src2);
+	else m2 = (uint64_t)src2;
+
+
+	// do arithmetics
+	uint64_t product = (uint64_t)(m1*m2);
+
+	state->HI = (uint32_t)(uint64_t)(product>>32);
+	state->LO = (uint32_t)product;
+
+	return mips_Success;  
+
+}
 
 DEFR(mfhi){ 
     mips_error err = argzerocheck(rs);
