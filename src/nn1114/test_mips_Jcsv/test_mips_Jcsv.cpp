@@ -1,13 +1,10 @@
 #include "test_mips_Jcsv.h"
 
+// Jump Constructor - 8 arguments
 Jcsv::Jcsv(string nameIn, uint8_t opcodeIn, uint32_t argIn,
-             uint32_t resultIn, uint16_t exceptionIn, uint8_t JumpIn, string msgIn):
+             int JumpIn, bool LinkIn, uint32_t resultIn, uint16_t exceptionIn, string msgIn) :
 
-			InsCSV(nameIn, opcodeIn, exceptionIn, msgIn, JumpIn), arg(argIn),
-			result(resultIn) {
-                if(result==0) calcResult=1;
-                else calcResult=0;
-            }
+			CONINSCSVJUMP, arg(argIn) {}
 
 
 uint32_t Jcsv::Build(){

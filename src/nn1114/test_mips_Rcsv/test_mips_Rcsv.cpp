@@ -1,22 +1,19 @@
 #include "test_mips_Rcsv.h"
 
+// Non-Jump Constructor - 12 arguments
 Rcsv::Rcsv(string nameIn, uint8_t opcodeIn, uint8_t rsIn, uint8_t rtIn, uint8_t rdIn, uint8_t shiftIn, uint8_t fnIn,
 			 uint32_t src1In, uint32_t src2In, uint32_t resultIn, uint16_t exceptionIn, string msgIn)	:
 			
-			InsCSV(nameIn, opcodeIn, exceptionIn, msgIn), rs(rsIn), rt(rtIn), rd(rdIn), shift(shiftIn), fn(fnIn),
-			src1(src1In), src2(src2In), result(resultIn) {
-                if(result==0) calcResult=1;
-                else calcResult=0;
-            }
+			CONINSCSV, rs(rsIn), rt(rtIn), rd(rdIn), shift(shiftIn), fn(fnIn),
+			src1(src1In), src2(src2In) {}
 
+
+// Jump Constructor - 14 arguments
 Rcsv::Rcsv(string nameIn, uint8_t opcodeIn, uint8_t rsIn, uint8_t rtIn, uint8_t rdIn, uint8_t shiftIn, uint8_t fnIn,
-        uint32_t src1In, uint32_t src2In, uint32_t resultIn, uint16_t exceptionIn, uint8_t JumpIn, string msgIn):
+        uint32_t src1In, uint32_t src2In, int JumpIn, bool LinkIn, uint32_t resultIn, uint16_t exceptionIn, string msgIn) :
 
-            InsCSV(nameIn, opcodeIn, exceptionIn, msgIn, JumpIn), rs(rsIn), rt(rtIn), rd(rdIn), shift(shiftIn), fn(fnIn),
-            src1(src1In), src2(src2In), result(resultIn) {
-                if(result==0) calcResult=1;
-                else calcResult=0;
-            }
+            CONINSCSVJUMP, rs(rsIn), rt(rtIn), rd(rdIn), shift(shiftIn), fn(fnIn),
+            src1(src1In), src2(src2In) {}
 
 
 uint32_t Rcsv::Build(){
@@ -42,22 +39,8 @@ void Rcsv::SetRegs(mips_cpu_h cpuPtr){
 
 int Rcsv::CheckResult(mips_cpu_h cpuPtr, mips_error excep_got, char** msg){
 
-    mips_error err;
-    /*static PC;
-    mips_error err;
-
-    if(Jump){
-        // if first check, get current PC, before instruction is executed
-        if(JumpTmp==Jump){
-            err = mips_cpu_get_pc(cpuPtr, &PC);
-            return 1;
-        }
-
-
-    }*/
-
     // If not a Jump
-    err = mips_cpu_get_register(cpuPtr, rd, &calcResult);
+    mips_error err = mips_cpu_get_register(cpuPtr, rd, &calcResult);
     checkRegGet(err);
 
     // Modify message

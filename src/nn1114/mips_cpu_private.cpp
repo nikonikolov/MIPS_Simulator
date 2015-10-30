@@ -64,7 +64,7 @@ mips_error argzerocheck(const uint8_t& arg){
 }
 
 
-mips_error mips_cpu_get_npc(
+mips_error nn1114_mips_cpu_get_npc(
 	mips_cpu_h state,	//!< Valid (non-empty) handle to a CPU
 	uint32_t *npc		//!< Where to write the byte address too
 ){
@@ -139,7 +139,7 @@ mips_error printPC(mips_cpu_h state){
 	uint32_t PC, nPC;
 	
 	mips_cpu_get_pc (state, &PC);
-	mips_cpu_get_npc (state, &nPC);
+	nn1114_mips_cpu_get_npc (state, &nPC);
 	
 	debugPrintWord(state, PC, "PC");
 	debugPrintWord(state, nPC, "nPC");

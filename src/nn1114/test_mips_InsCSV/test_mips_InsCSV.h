@@ -7,12 +7,17 @@
 
 #include <string>
 
+#define CONINSCSV 		InsCSV(nameIn, opcodeIn, resultIn, exceptionIn, msgIn)
+#define CONINSCSVJUMP 	InsCSV(nameIn, opcodeIn, resultIn, exceptionIn, msgIn, JumpIn, LinkIn)
+
 class InsCSV{
 
 public:
 
-	//InsCSV();
-	InsCSV(string name_in, uint8_t opcode_in, uint16_t exception_in, string msg_in, uint8_t Jump_in =0);
+	InsCSV(string nameIn, uint8_t opcodeIn, uint32_t resultIn, uint16_t exceptionIn, string msgIn);
+
+	InsCSV(string nameIn, uint8_t opcodeIn, uint32_t resultIn, uint16_t exceptionIn, string msgIn, 
+			int JumpIn, bool LinkIn);
 
 	virtual ~InsCSV(){}
 
@@ -26,16 +31,18 @@ public:
 
 	char* get_name();
 	char* get_msg();
-	uint8_t get_Jump();
+	int get_Jump();
 
 protected:
-	string name;
-	uint8_t opcode;
-	uint16_t exception;
-	uint32_t calcResult;
-	uint8_t Jump;				// 0 if not a jump. Otherwise, reduced to zero after the last test has been performed
-	uint8_t JumpTmp;			// used to count how many steps are left till the end of the jump
-	string msg;					// hint-error message for an instructions
+	string 		name;
+	uint8_t 	opcode;
+	uint16_t 	exception;
+	uint32_t 	result;				// Expected Result
+	uint32_t 	calcResult;			// Actual Result
+	int 		Jump;				// 0 if not a jump. Otherwise, reduced to zero after the last test has been performed
+	int 		JumpTmp;			// used to count how many steps are left till the end of the jump
+	bool	 	Link;
+	string 		msg;				// hint-error message for an instructions
 };
 
 #endif

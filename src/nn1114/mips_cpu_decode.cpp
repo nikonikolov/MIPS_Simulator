@@ -154,18 +154,23 @@ mips_error decodeR(mips_cpu_h state, uint32_t InsWord){
 	uint8_t rs, rt, rd, shift;
 	extr_R(state, InsWord, src1, src2, rs, rt, rd, shift);
 
+	// Variable to indicate whether instruction needs to write result to registers
+	bool write = true;
+
 	// declare var to store result from instruction
 	uint32_t result;
 
 	// execute instruction
-	mips_error err = FnImpl(state, src1, src2, result, shift, rs, rt, rd);
+	mips_error err = FnImpl(state, src1, src2, result, shift, rs, rt, rd, write);
 	if(err) return printErr(state, err, "Fn: decodeR, execute(FnImpl) unsuccessful");	
 
 	// print if logLevel is set
 	err = InsObj->debugIns(state, InsWord, result);
 	
-	// write to register
-	return mips_cpu_set_register(state, rd, result);
+	// If true, write to register
+	if(write) return mips_cpu_set_register(state, rd, result);
+	
+	return mips_Success;
 }
 
 
@@ -187,15 +192,20 @@ mips_error decodeI(mips_cpu_h state, uint32_t InsWord){
 	// declare var to store result from instruction
 	uint32_t result;
 
+	// Variable to indicate whether instruction needs to write result to registers
+	bool write = true;
+
 	// execute instruction
-	mips_error err = FnImpl(state, src1, sign_extend(imm), result, rs, rd);
+	mips_error err = FnImpl(state, src1, sign_extend(imm), result, rs, rd, write);
 	if(err) return printErr(state, err, "Fn: decodeI, execute(FnImpl) unsuccessful");	
 
 	// print if logLevel is set
 	err = InsObj->debugIns(state, InsWord, result);
 
-	// write to register
-	return mips_cpu_set_register(state, rd, result);
+	// If true, write to register
+	if(write) return mips_cpu_set_register(state, rd, result);
+	
+	return mips_Success;
 }
 
 

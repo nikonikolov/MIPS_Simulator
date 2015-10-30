@@ -7,9 +7,13 @@
 #include "mips_cpu_print.h"
 #include <cmath>
 
-#define DEFR(X) mips_error X(mips_cpu_h state, uint32_t src1, uint32_t src2, uint32_t& result, uint8_t shift, uint8_t rs, uint8_t rt, uint8_t rd)
+#define DEFR(X) mips_error X(mips_cpu_h state, uint32_t src1, uint32_t src2, uint32_t& result, uint8_t shift, uint8_t rs, uint8_t rt, uint8_t rd, bool& write)
 
-#define DEFI(X) mips_error X(mips_cpu_h state, uint32_t src1, uint32_t imm, uint32_t& result, uint8_t rs, uint8_t rd)
+#define CALLR(X) X(state, src1, src2, result, shift, rs, rt, rd, write)
+
+#define DEFI(X) mips_error X(mips_cpu_h state, uint32_t src1, uint32_t imm, uint32_t& result, uint8_t rs, uint8_t rd, bool& write)
+
+#define CALLI(X) X(state, src1, imm, result, rs, rd, write)
 
 #define DEFJ(X) mips_error X(mips_cpu_h state, uint32_t InsWord)
 

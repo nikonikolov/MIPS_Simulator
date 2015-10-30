@@ -22,7 +22,7 @@ mips_error argzerocheck(const uint8_t& shift);
 
 bool check_negative(const uint32_t& arg);
 
-mips_error mips_cpu_get_npc(
+mips_error nn1114_mips_cpu_get_npc(
 	mips_cpu_h state,	//!< Valid (non-empty) handle to a CPU
 	uint32_t *npc		//!< Where to write the byte address too
 );

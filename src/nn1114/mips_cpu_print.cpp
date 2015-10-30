@@ -24,7 +24,7 @@ mips_error printPC(mips_cpu_h state){
 	uint32_t PC, nPC;
 	
 	mips_cpu_get_pc (state, &PC);
-	mips_cpu_get_npc (state, &nPC);
+	nn1114_mips_cpu_get_npc (state, &nPC);
 	
 	debugPrintWord(state, PC, "PC");
 	debugPrintWord(state, nPC, "nPC");

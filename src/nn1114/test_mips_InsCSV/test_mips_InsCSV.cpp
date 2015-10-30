@@ -2,9 +2,26 @@
 
 //InsCSV::InsCSV(){}
 
-InsCSV::InsCSV(string name_in, uint8_t opcode_in, uint16_t exception_in, string msg_in, uint8_t Jump_in /*=0*/):
-				name(name_in), opcode(opcode_in), exception(exception_in), msg(msg_in), Jump(Jump_in) {
+// Non-Jump Constructor
+InsCSV::InsCSV(string nameIn, uint8_t opcodeIn, uint32_t resultIn, uint16_t exceptionIn, string msgIn) :
+				
+				name(nameIn), opcode(opcodeIn), result(resultIn), exception(exceptionIn), msg(msgIn) {
+					Jump=0;
 					JumpTmp=Jump;
+					Link=false;
+					if(result==0) calcResult=1;
+                	else calcResult=0;
+				}
+
+// Jump Constructor
+InsCSV::InsCSV(string nameIn, uint8_t opcodeIn, uint32_t resultIn, uint16_t exceptionIn, string msgIn, 
+				int JumpIn, bool LinkIn) :
+				
+				name(nameIn), opcode(opcodeIn), result(resultIn), exception(exceptionIn), msg(msgIn), 
+				Jump(JumpIn), Link(LinkIn) {
+					JumpTmp=Jump;
+					if(result==0) calcResult=1;
+                	else calcResult=0;
 				}
 
 
@@ -16,7 +33,7 @@ char* InsCSV::get_msg(){
 	return &(msg[0]);
 }
 
-uint8_t InsCSV::get_Jump(){
+int InsCSV::get_Jump(){
 	// If Jump Check is over, reset JumpTmp to allow for second pass through this instruction
 	if(JumpTmp==0){
 		JumpTmp=Jump;

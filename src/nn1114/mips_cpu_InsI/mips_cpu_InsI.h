@@ -5,7 +5,7 @@
 #define INSI_H
 #include "../mips_cpu_Ins/mips_cpu_Ins.h"
 
-typedef mips_error (*FPI)(mips_cpu_h, uint32_t, uint32_t, uint32_t&, uint8_t, uint8_t);
+typedef mips_error (*FPI)(mips_cpu_h, uint32_t, uint32_t, uint32_t&, uint8_t, uint8_t, bool&);
 
 template<class FnPtrSpec>
 class InsI : public Ins<FnPtrSpec> {

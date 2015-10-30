@@ -9,6 +9,7 @@ static uint32_t zero_extend(uint32_t arg){
 	return 	(0x0000FFFF & arg);
 }
 
+// Returns true if src1<src2 and false otherwise
 static bool compSigned(uint32_t src1, uint32_t src2){
 	bool s1_neg = 0x80000000 & src1;
 	bool s2_neg = 0x80000000 & src2;
@@ -31,6 +32,26 @@ static bool compSigned(uint32_t src1, uint32_t src2){
 
 	// src1>=src2
 	return false;
+}
+
+// Returns true if arg>0 and false otherwise
+static bool GreaterThanZero(uint32_t arg){
+	
+	// arg<=0
+	if( (0x80000000 & arg) || arg==0) return false;
+
+	// arg>0
+	return true;
+}
+
+// Returns true if arg>0 and false otherwise
+static bool GreaterThanEqualZero(uint32_t arg){
+	
+	// arg<0
+	if(0x80000000 & arg) return false;
+
+	// arg>=0
+	return true;
 }
 
 DEFR(add){
@@ -62,11 +83,11 @@ DEFR(addu){
 
 
 DEFR(sub){
-	return add(state, src1, twoscomp(src2), result, shift, rs, rt, rd);
+	return add(state, src1, twoscomp(src2), result, shift, rs, rt, rd, write);
 }
 
 DEFR(subu){
-	return addu(state, src1, twoscomp(src2), result, shift, rs, rt, rd);
+	return addu(state, src1, twoscomp(src2), result, shift, rs, rt, rd, write);
 }
 
 DEFR(andr){
@@ -131,6 +152,8 @@ DEFR(mflo){
 }
 
 DEFR(mthi){ 
+	write = false;								// make sure you don't change state of cpu after you go back to call
+
     mips_error err = argzerocheck(rt);
 	if(err) return err;
     err = argzerocheck(rd);
@@ -139,12 +162,13 @@ DEFR(mthi){
 	if(err) return err;
 	
 	state->HI = src1;
-	result = 0;
 
 	return mips_Success; 
 }
 
 DEFR(mtlo){ 
+	write = false;								// make sure you don't change state of cpu after you go back to call
+    
     mips_error err = argzerocheck(rt);
 	if(err) return err;
     err = argzerocheck(rd);
@@ -153,7 +177,6 @@ DEFR(mtlo){
 	if(err) return err;
 	
 	state->LO = src1;
-	result = 0;
 
 	return mips_Success; 
 }
@@ -310,52 +333,150 @@ DEFI(xori){
 
 
 DEFI(b){ 
-	if(rd==0x01) return bgez(state, src1, imm, result, rs, rd);
+/*	if(rd==0x01) return bgez(state, src1, imm, result, rs, rd);
 	if(rd==0x11) return bgezal(state, src1, imm, result, rs, rd);
 	if(rd==0x00) return bltz(state, src1, imm, result, rs, rd);
 	if(rd==0x10) return bltzal(state, src1, imm, result, rs, rd);
-	
+	*/
+
+	if(rd==0x01) return CALLI(bgez);
+	if(rd==0x11) return CALLI(bgezal);
+	if(rd==0x00) return CALLI(bltz);
+	if(rd==0x10) return CALLI(bltzal);
+
 	return mips_ErrorNotImplemented; 
 }
 
-DEFI(bltz){ return mips_ErrorNotImplemented; }
-DEFI(bltzal){ return mips_ErrorNotImplemented; }
-DEFI(bgez){ return mips_ErrorNotImplemented; }
-DEFI(bgezal){ return mips_ErrorNotImplemented; }
-
-DEFI(beq){  
-	uint32_t src2;
-	mips_cpu_get_register(state, rd, &src2);	// rd is already cut to 5 bits, no error can be received
+DEFI(bltz){  
+	write = false;								// make sure you don't change state of cpu after you go back to call
 	
-	result=src2;								// make sure you don't change state of cpu after you go back to call
-
-	if(src1 == src2){
+	if(!GreaterThanEqualZero(src1)){
 		imm = (imm<<2);
-		uint32_t nPC, branch;
-		mips_cpu_get_npc(state, &nPC);
 		
-		branch = nPC + imm;
-		
-		bool immNeg = check_negative(imm);
-		bool branchNeg = check_negative(branch);
-		bool nPCNeg = check_negative(nPC);
-		
-		// Negative destination address
-		if(immNeg && !nPCNeg && branchNeg) return mips_ExceptionInvalidAddress;
-		
-		// Destination address overflow
-		if(!immNeg && nPCNeg && !branchNeg) return mips_ExceptionInvalidAddress;
-
-		mips_cpu_set_branch(state, imm);	// imm last 2 bits are already zero, no error can be received
-	
+		// Change CPU state, set the offset for PC
+		mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
 	}
 
 	return mips_Success;
 }
 
-DEFI(bne){ return mips_ErrorNotImplemented; }
-DEFI(blez){ return mips_ErrorNotImplemented; }
-DEFI(bgtz){ return mips_ErrorNotImplemented; }
+DEFI(bltzal){  
+	write = false;								// make sure you don't change state of cpu after you go back to call
+	
+	uint32_t PC;
+	mips_cpu_get_pc(state, &PC);
+
+	// Link, no matter if the condition is true or false
+	mips_cpu_set_register(state, 31, PC+8);
+	if(!GreaterThanEqualZero(src1)){
+		imm = (imm<<2);
+		
+		// Change CPU state, set the offset for PC
+		mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
+	}
+
+	return mips_Success;
+}
+
+
+
+DEFI(bgez){  
+	write = false;								// make sure you don't change state of cpu after you go back to call
+	
+	if(GreaterThanEqualZero(src1)){
+		imm = (imm<<2);
+		
+		// Change CPU state, set the offset for PC
+		mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
+	}
+
+	return mips_Success;
+}
+
+DEFI(bgezal){  
+	write = false;								// make sure you don't change state of cpu after you go back to call
+	
+	uint32_t PC;
+	mips_cpu_get_pc(state, &PC);
+
+	// Link, no matter if the condition is true or false
+	mips_cpu_set_register(state, 31, PC+8);
+	if(GreaterThanEqualZero(src1)){
+		imm = (imm<<2);
+		
+		// Change CPU state, set the offset for PC
+		mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
+	}
+
+	return mips_Success;
+}
+
+DEFI(beq){  
+	write = false;								// make sure you don't change state of cpu after you go back to call
+	
+	uint32_t src2;
+	mips_cpu_get_register(state, rd, &src2);	// rd is already cut to 5 bits, no error can be received
+
+	if(src1 == src2){
+		imm = (imm<<2);
+		
+		// Change CPU state, set the offset for PC
+		mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
+	}
+
+	return mips_Success;
+}
+
+
+DEFI(bne){  
+	write = false;								// make sure you don't change state of cpu after you go back to call
+	
+	uint32_t src2;
+	mips_cpu_get_register(state, rd, &src2);	// rd is already cut to 5 bits, no error can be received
+	
+	if(src1 != src2){
+		imm = (imm<<2);
+		
+		// Change CPU state, set the offset for PC
+		mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
+	}
+
+	return mips_Success;
+}
+
+
+DEFI(blez){  
+	write = false;								// make sure you don't change state of cpu after you go back to call
+	
+	mips_error err = argzerocheck(rd);
+	if(err) return err;
+	
+	if(!GreaterThanZero(src1)){
+		imm = (imm<<2);
+		
+		// Change CPU state, set the offset for PC
+		mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
+	}
+
+	return mips_Success;
+}
+
+
+DEFI(bgtz){  
+	write = false;								// make sure you don't change state of cpu after you go back to call
+	
+	mips_error err = argzerocheck(rd);
+	if(err) return err;
+	
+	if(GreaterThanZero(src1)){
+		imm = (imm<<2);
+		
+		// Change CPU state, set the offset for PC
+		mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
+	}
+
+	return mips_Success;
+}
 
 DEFI(lw){ return mips_ErrorNotImplemented; }
 DEFI(lh){ return mips_ErrorNotImplemented; }
@@ -377,7 +498,7 @@ DEFI(sw){
 
 	// Load in Memory  
     mips_error err = mips_mem_write(
-        steate->mem,                     //!< Handle to target memory
+        state->memPtr,                     //!< Handle to target memory
         imm,                         	 //!< Byte address to start transaction at
         4,                               //!< Number of bytes to transfer
         (uint8_t*)&(src2)             	 //!< Receives the target bytes

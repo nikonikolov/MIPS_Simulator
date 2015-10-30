@@ -7,8 +7,9 @@ class Jcsv : public InsCSV {
 
 public:
 	
+	// Jump Constructor - 8 arguments
 	Jcsv(string nameIn, uint8_t opcodeIn, uint32_t argIn,
-			 uint32_t resultIn, uint16_t exceptionIn, uint8_t JumpIn, string msgIn);
+             int JumpIn, bool LinkIn, uint32_t resultIn, uint16_t exceptionIn, string msgIn);
 
 	~Jcsv(){}
 
@@ -21,7 +22,16 @@ public:
 private:
 	uint32_t arg;
 
-	uint32_t result;
+	// ABSTRACT CLASS VARIABLES
+	//string 		name;
+	//uint8_t 		opcode;
+	//uint16_t 		exception;
+	//uint32_t 		result;				// Expected Result
+	//uint32_t 		calcResult;			// Actual Result
+	//int 			Jump;				// 0 if not a jump. Otherwise, reduced to zero after the last test has been performed
+	//int 			JumpTmp;			// used to count how many steps are left till the end of the jump
+	//bool	 		Link;
+	//string 		msg;				// hint-error message for an instructions
 };
 
 #endif

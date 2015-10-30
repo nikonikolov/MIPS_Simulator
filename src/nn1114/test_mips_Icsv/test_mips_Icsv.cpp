@@ -1,26 +1,18 @@
 #include "test_mips_Icsv.h"
 
-#include <iostream>
-using namespace std;
-
+// Non-Jump Constructor - 9 arguments
 Icsv::Icsv(string nameIn, uint8_t opcodeIn, uint8_t rsIn, uint8_t rdIn, uint16_t immIn,
              uint32_t src1In, uint32_t resultIn, uint16_t exceptionIn, string msgIn):
 
-			InsCSV(nameIn, opcodeIn, exceptionIn, msgIn), rs(rsIn), rd(rdIn), imm(immIn),
-			src1(src1In), result(resultIn) {
-                if(result==0) calcResult=1;
-                else calcResult=0;
-            }
+			CONINSCSV, rs(rsIn), rd(rdIn), imm(immIn), src1(src1In) {}
 
-
+// Jump Constructor - 13 arguments
 Icsv::Icsv(string nameIn, uint8_t opcodeIn, uint8_t rsIn, uint8_t rdIn, uint16_t immIn,
-             uint32_t src1In, uint32_t src2In, uint32_t resultIn, uint16_t exceptionIn, uint8_t JumpIn, string msgIn):
+             uint32_t src1In, uint32_t src2In, int JumpIn, bool JumpTakeIn, bool LinkIn,
+             uint32_t resultIn, uint16_t exceptionIn,  string msgIn):
 
-            InsCSV(nameIn, opcodeIn, exceptionIn, msgIn, JumpIn), rs(rsIn), rd(rdIn), imm(immIn),
-            src1(src1In), src2(src2In), result(resultIn) {
-                if(result==0) calcResult=1;
-                else calcResult=0;
-            }
+            CONINSCSVJUMP, rs(rsIn), rd(rdIn), imm(immIn), 
+            src1(src1In), src2(src2In), JumpTake(JumpTakeIn) {}
 
 
 uint32_t Icsv::Build(){
@@ -43,7 +35,7 @@ void Icsv::SetRegs(mips_cpu_h cpuPtr){
     }
 }
     
-int Icsv::JumpNotTaken(mips_cpu_h cpuPtr){
+int Icsv::JumpNotTaken(mips_cpu_h cpuPtr, mips_error excep_got){
     // The instruction itself
     if(JumpTmp==3){
         mips_cpu_get_pc(cpuPtr, &calcResult);
@@ -57,7 +49,11 @@ int Icsv::JumpNotTaken(mips_cpu_h cpuPtr){
         mips_cpu_get_pc(cpuPtr, &calcResult);
         JumpTmp--;
 
-        return calcResult==(PCtmp+4);
+        if (excep_got == InsCSV::exception){
+            if (excep_got != mips_Success) return 1;
+            else return calcResult==(PCtmp+4);
+        }
+        else return 0;
     }
 
     // Destination address
@@ -73,25 +69,29 @@ int Icsv::JumpNotTaken(mips_cpu_h cpuPtr){
 }    
 
 
-int Icsv::JumpTaken(mips_cpu_h cpuPtr){
+int Icsv::JumpTaken(mips_cpu_h cpuPtr, mips_error excep_got){
     
-    // The instruction itself
+    // PC points to the instruction itself
     if(JumpTmp==3){
         mips_cpu_get_pc(cpuPtr, &calcResult);
         JumpTmp--;
         return 1;
     }
         
-    // Instruction after the jump
+    // PC points to instruction after the jump
     else if(JumpTmp==2){
         uint32_t PCtmp=calcResult;
         mips_cpu_get_pc(cpuPtr, &calcResult);
         JumpTmp--;
 
-        return calcResult==(PCtmp+4);
+        if (excep_got == InsCSV::exception){
+            if (excep_got != mips_Success) return 1;
+            else return calcResult==(PCtmp+4);
+        }
+        else return 0;
     }
 
-    // Destination address
+    // PC points to destination address
     else if(JumpTmp==1){
         mips_cpu_get_pc(cpuPtr, &calcResult);
         JumpTmp--;
@@ -103,21 +103,16 @@ int Icsv::JumpTaken(mips_cpu_h cpuPtr){
 }    
 
 
-int Icsv::CheckJump(mips_cpu_h cpuPtr, mips_error excep_got){
-    if(src1==src2){
-        if( !( (rd==0 || rs==0) && src1!=0 ) ) return JumpTaken(cpuPtr);        
-    }
-
-    return JumpNotTaken(cpuPtr);
-}    
-
 int Icsv::CheckResult(mips_cpu_h cpuPtr, mips_error excep_got, char** msg){
 
     // Modify message
     *msg = InsCSV::get_msg();
 
     // If Ins is a Jump
-    if(JumpTmp) return CheckJump(cpuPtr, excep_got);
+    if(JumpTmp){
+        if(JumpTake) return JumpTaken(cpuPtr, excep_got);
+        return JumpNotTaken(cpuPtr, excep_got);
+    }
 
     // If not a Jump
     mips_error err = mips_cpu_get_register(cpuPtr, rd, &calcResult);

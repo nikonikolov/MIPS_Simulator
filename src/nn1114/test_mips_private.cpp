@@ -22,6 +22,26 @@ static uint32_t touint32(string number){
     return result;
 }
 
+static int toint(string number){
+    int result;
+
+    stringstream ss;
+    ss << number;
+    ss >> result;
+
+    return result;
+}
+
+static bool tobool(string number){
+    bool result;
+
+    stringstream ss;
+    ss << number;
+    ss >> result;
+
+    return result;
+}  
+
 /*static uint16_t touint16(string number){
     uint16_t result;
 
@@ -39,13 +59,13 @@ static void parseIns(const CSVRow& RowObj, vector<InsCSV*>& InsObjPtrs){
 
 
     // Jump R-type
-    if(size==13){       // R-type instruction
-        InsCSVPtr = new Rcsv(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint8_t)(touint32(RowObj[2])), 
+    if(size==14){       // R-type instruction
+        InsCSVPtr = new Rcsv(RowObj[0],     (uint8_t)(tohex(RowObj[1])), (uint8_t)(touint32(RowObj[2])), 
                                             (uint8_t)(touint32(RowObj[3])), (uint8_t)(touint32(RowObj[4])), 
                                             (uint8_t)(touint32(RowObj[5])), (uint8_t)(tohex(RowObj[6])),
                                             (uint32_t)(touint32(RowObj[7])), (uint32_t)(touint32(RowObj[8])), 
-                                            (uint32_t)(touint32(RowObj[9])), (uint16_t)(tohex(RowObj[10])), 
-                                            (uint8_t)(touint32(RowObj[11])), RowObj[12] );
+                                            toint(RowObj[9]), tobool(RowObj[10]), (uint32_t)(touint32(RowObj[11])), 
+                                            (uint16_t)(tohex(RowObj[12])), RowObj[13] );
         InsObjPtrs.push_back(InsCSVPtr);
     }
 
@@ -60,18 +80,19 @@ static void parseIns(const CSVRow& RowObj, vector<InsCSV*>& InsObjPtrs){
     }
 
     // Jump I-type
-    else if(size==11){   // I-type instruction
-        InsCSVPtr = new Icsv(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint8_t)(touint32(RowObj[2])), 
+    else if(size==13){   // I-type instruction
+        InsCSVPtr = new Icsv(RowObj[0],     (uint8_t)(tohex(RowObj[1])), (uint8_t)(touint32(RowObj[2])), 
                                             (uint8_t)(touint32(RowObj[3])), (uint16_t)(touint32(RowObj[4])), 
                                             (uint32_t)(touint32(RowObj[5])), (uint32_t)(touint32(RowObj[6])),
-                                            (uint32_t)(touint32(RowObj[7])), (uint16_t)(tohex(RowObj[8])), 
-                                            (uint8_t)(touint32(RowObj[9])), RowObj[10] );
+                                            toint(RowObj[7]), tobool(RowObj[8]), tobool(RowObj[9]),
+                                            (uint32_t)(touint32(RowObj[10])), (uint16_t)(tohex(RowObj[11])), 
+                                            RowObj[12] );
         InsObjPtrs.push_back(InsCSVPtr);
     }
 
     // Arithmetic I-type
     else if(size==9){   // I-type instruction
-        InsCSVPtr = new Icsv(RowObj[0],  (uint8_t)(tohex(RowObj[1])), (uint8_t)(touint32(RowObj[2])), 
+        InsCSVPtr = new Icsv(RowObj[0],     (uint8_t)(tohex(RowObj[1])), (uint8_t)(touint32(RowObj[2])), 
                                             (uint8_t)(touint32(RowObj[3])), (uint16_t)(touint32(RowObj[4])), 
                                             (uint32_t)(touint32(RowObj[5])), (uint32_t)(touint32(RowObj[6])),
                                             (uint16_t)(tohex(RowObj[7])), RowObj[8] );
@@ -79,10 +100,10 @@ static void parseIns(const CSVRow& RowObj, vector<InsCSV*>& InsObjPtrs){
     }
 
     // J-type
-    else if(size==7){   // J-type instruction
+    else if(size==8){   // J-type instruction
         InsCSVPtr = new Jcsv(RowObj[0], (uint8_t)(tohex(RowObj[1])), (uint32_t)(touint32(RowObj[2])), 
-                                        (uint32_t)(touint32(RowObj[3])), (uint16_t)(tohex(RowObj[4])), 
-                                        (uint8_t)(touint32(RowObj[3])), RowObj[5] );
+                                        toint(RowObj[3]), tobool(RowObj[4]), (uint32_t)(touint32(RowObj[5])), 
+                                        (uint16_t)(tohex(RowObj[6])), RowObj[7] );
         InsObjPtrs.push_back(InsCSVPtr);
     }
 
@@ -132,6 +153,8 @@ void readFile(string filename, vector<InsCSV*>& InsObjPtrs){
 
     CSVRow RowObj;
 
+    int i=0;
+    
     while(infile >> RowObj){
         parseIns(RowObj, InsObjPtrs);
     }
