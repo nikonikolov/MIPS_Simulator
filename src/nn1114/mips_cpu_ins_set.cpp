@@ -251,8 +251,49 @@ DEFR(srav){
 }
 
 
-DEFR(jr){ return mips_ErrorNotImplemented; }
-DEFR(jalr){ return mips_ErrorNotImplemented; }
+DEFR(jr){ 	
+
+	write = false;								// make sure you don't change state of cpu after you go back to call
+
+	mips_error err;
+	err = argzerocheck(rt);
+	if(err) return err;
+	err = argzerocheck(rd);
+	if(err) return err;
+	err = argzerocheck(shift);
+	if(err) return err;
+
+	uint32_t PC;
+	mips_cpu_get_pc(state, &PC);
+	//if(src1 & 0x00000003) return mips_ExceptionInvalidAddress; 
+		
+	// Change CPU state, set the jump address
+	nn1114_mips_cpu_set_branch(state, (src1 - (PC+4)) );		// target last 2 bits are already zero, no error can be received
+
+	return mips_Success; 
+}
+
+DEFR(jalr){ 	
+
+	mips_error err;
+	err = argzerocheck(rt);
+	if(err) return err;
+	err = argzerocheck(shift);
+	if(err) return err;
+
+	// Link, no matter if the condition is true or false
+	uint32_t PC;
+	mips_cpu_get_pc(state, &PC);
+	result = PC + 8;
+
+	//if(src1 & 0x00000003) return mips_ExceptionInvalidAddress; 
+		
+	// Change CPU state, set the jump address
+	nn1114_mips_cpu_set_branch(state, (src1 - (PC+4)) );		// target last 2 bits are already zero, no error can be received
+
+	return mips_Success;		
+}
+
 
 DEFR(slt){ 
 	
@@ -354,7 +395,7 @@ DEFI(bltz){
 		imm = (imm<<2);
 		
 		// Change CPU state, set the offset for PC
-		mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
+		nn1114_mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
 	}
 
 	return mips_Success;
@@ -372,7 +413,7 @@ DEFI(bltzal){
 		imm = (imm<<2);
 		
 		// Change CPU state, set the offset for PC
-		mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
+		nn1114_mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
 	}
 
 	return mips_Success;
@@ -387,7 +428,7 @@ DEFI(bgez){
 		imm = (imm<<2);
 		
 		// Change CPU state, set the offset for PC
-		mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
+		nn1114_mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
 	}
 
 	return mips_Success;
@@ -405,7 +446,7 @@ DEFI(bgezal){
 		imm = (imm<<2);
 		
 		// Change CPU state, set the offset for PC
-		mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
+		nn1114_mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
 	}
 
 	return mips_Success;
@@ -421,7 +462,7 @@ DEFI(beq){
 		imm = (imm<<2);
 		
 		// Change CPU state, set the offset for PC
-		mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
+		nn1114_mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
 	}
 
 	return mips_Success;
@@ -438,7 +479,7 @@ DEFI(bne){
 		imm = (imm<<2);
 		
 		// Change CPU state, set the offset for PC
-		mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
+		nn1114_mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
 	}
 
 	return mips_Success;
@@ -455,7 +496,7 @@ DEFI(blez){
 		imm = (imm<<2);
 		
 		// Change CPU state, set the offset for PC
-		mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
+		nn1114_mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
 	}
 
 	return mips_Success;
@@ -472,7 +513,7 @@ DEFI(bgtz){
 		imm = (imm<<2);
 		
 		// Change CPU state, set the offset for PC
-		mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
+		nn1114_mips_cpu_set_branch(state, imm);		// imm last 2 bits are already zero, no error can be received
 	}
 
 	return mips_Success;
@@ -605,5 +646,30 @@ DEFI(sltiu){
 
 /* *********************** J-TYPE *********************** */ 
 
-DEFJ(j){ return mips_ErrorNotImplemented; }
-DEFJ(jal){ return mips_ErrorNotImplemented; }
+DEFJ(j){ 	
+
+	uint32_t PC;
+	mips_cpu_get_pc(state, &PC);
+
+	uint32_t target = ( ((PC+4) & 0xF0000000) | (0x0FFFFFFF & (arg<<2)) );
+		
+	// Change CPU state, set the jump address
+	nn1114_mips_cpu_set_branch(state, (target - (PC+4)) );		// target last 2 bits are already zero, no error can be received
+
+	return mips_Success; 
+}
+DEFJ(jal){ 	
+
+	uint32_t PC;
+	mips_cpu_get_pc(state, &PC);
+
+	// Link, no matter if the condition is true or false
+	mips_cpu_set_register(state, 31, PC+8);
+	
+	uint32_t target = ( ((PC+4) & 0xF0000000) | (0x0FFFFFFF & (arg<<2)) );
+		
+	// Change CPU state, set the jump address
+	nn1114_mips_cpu_set_branch(state, (target - (PC+4)) );		// target last 2 bits are already zero, no error can be received
+
+	return mips_Success; 
+}

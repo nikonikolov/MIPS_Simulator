@@ -39,12 +39,21 @@ void Rcsv::SetRegs(mips_cpu_h cpuPtr){
 
 int Rcsv::CheckResult(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got, char** msg){
 
+    // Modify message
+    *msg = InsCSV::get_msg();
+
+    // If Ins is a Jump
+    if(Jump>0) return CheckJump(cpuPtr, mem, excep_got);
+
+    // If Ins is a MULT/DIV (potentially, might not be needed)
+    if(Jump<0){
+        //if(Jump==-1 || Jump==-2 || Jump==-3) return CALLSLCHECK(StoreCheck);//(cpuPtr, mem, excep_got);
+        //else return LoadCheck(cpuPtr, mem, excep_got);
+    }
+
     // If not a Jump
     mips_error err = mips_cpu_get_register(cpuPtr, rd, &calcResult);
     checkRegGet(err);
-
-    // Modify message
-    *msg = InsCSV::get_msg();
 
     // NOTE : C STORES NEGATIVE NUMBERS INSIDE UINT TYPE WITH THEIR TWO'S COMLEMENT EQUIVALENT, SO NO ADDITIONAL CHECKS ARE REQUIRED
     if (excep_got == InsCSV::exception){
@@ -74,4 +83,50 @@ void Rcsv::printInsObj(FILE *dest, mips_error err){
     else{
         if(calcResult!=result) fprintf(dest, "Expected result: %d, received %d\n", result, calcResult);
     }
+}
+
+
+int Rcsv::CheckJump(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got){
+
+    // PC points to the instruction itself
+    if(JumpTmp==3){
+        mips_cpu_get_pc(cpuPtr, &calcResult);
+        JumpTmp--;
+        if(!Link) mips_cpu_get_register(cpuPtr, 31, &reg31);
+        return 1;
+    }
+        
+    // PC points to instruction after the jump
+    else if(JumpTmp==2){
+        uint32_t PCtmp=calcResult;
+        mips_cpu_get_pc(cpuPtr, &calcResult);
+        JumpTmp--;
+
+        if(Link){
+            uint32_t returnAddr;
+            mips_cpu_get_register(cpuPtr, 31, &returnAddr);
+            if(returnAddr != (calcResult+4) ) return 0;
+        }
+        else{
+            uint32_t reg31new;
+            mips_cpu_get_register(cpuPtr, 31, &reg31new);
+            if(reg31new!=reg31) return 0;
+        }
+
+        if (excep_got == InsCSV::exception){
+            if (excep_got != mips_Success) return 1;
+            else return calcResult==(PCtmp+4);
+        }
+        else return 0;
+    }
+
+    // PC points to destination address
+    else if(JumpTmp==1){
+        mips_cpu_get_pc(cpuPtr, &calcResult);
+        JumpTmp--;
+
+        return result==calcResult;
+    }
+        
+    else return 0;
 }

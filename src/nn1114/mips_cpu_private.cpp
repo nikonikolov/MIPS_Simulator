@@ -38,6 +38,7 @@ uint32_t sign_extend(uint16_t arg){
 }
 
 // offset can be a value in register, hence 32bit
+// CALLED BY CPU_STEP with offset = state->branch
 mips_error advance_pc (mips_cpu_h state, uint32_t offset){
 	state->PC = state->nPC;
 	state->nPC += offset;
@@ -75,7 +76,7 @@ mips_error nn1114_mips_cpu_get_npc(
 	}
 }
 
-mips_error mips_cpu_set_npc(
+mips_error nn1114_mips_cpu_set_npc(
 	mips_cpu_h state,		//!< Valid (non-empty) handle to a CPU
 	uint32_t npc			//!< Address of the next instruction to exectute.
 ){	
@@ -87,12 +88,12 @@ mips_error mips_cpu_set_npc(
 }
 
 
-mips_error mips_cpu_set_branch(
+mips_error nn1114_mips_cpu_set_branch(
 	mips_cpu_h state,		//!< Valid (non-empty) handle to a CPU
 	uint32_t branch			//!< Address of the next instruction to exectute.
 ){	
 	// If address is not divisible by 4, error
-	if(branch & 0x00000003) return mips_ExceptionInvalidAddress;
+	//if(branch & 0x00000003) return mips_ExceptionInvalidAddress;
 	
 	state->branch = branch;
 	return mips_Success;

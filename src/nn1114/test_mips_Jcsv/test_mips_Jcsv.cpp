@@ -28,6 +28,7 @@ int Jcsv::CheckResult(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got, c
     if(JumpTmp==3){
         mips_cpu_get_pc(cpuPtr, &calcResult);
         JumpTmp--;
+        if(!Link) mips_cpu_get_register(cpuPtr, 31, &reg31);
         return 1;
     }
         
@@ -41,6 +42,11 @@ int Jcsv::CheckResult(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got, c
             uint32_t returnAddr;
             mips_cpu_get_register(cpuPtr, 31, &returnAddr);
             if(returnAddr != (calcResult+4) ) return 0;
+        }
+        else{
+            uint32_t reg31new;
+            mips_cpu_get_register(cpuPtr, 31, &reg31new);
+            if(reg31new!=reg31) return 0;
         }
 
         if (excep_got == InsCSV::exception){
@@ -69,7 +75,7 @@ void Jcsv::printInsObj(FILE *dest, mips_error err){
     fprintf(dest, "arg: %x ", arg);
     fprintf(dest, "Jump: %d ", Jump);
     fprintf(dest, "Link: %d ", (int)Link);
-    fprintf(dest, "result: %x ", result);
+    fprintf(dest, "result: %d ", result);
     fprintf(dest, "exception: %x ", InsCSV::exception);
     fprintf(dest, "msg: %s\n", InsCSV::get_msg());
     

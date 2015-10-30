@@ -24,6 +24,8 @@ public:
 
 	
 private:
+	int CheckJump(mips_cpu_h cpuPtr, mips_mem_h mem, mips_error excep_got);
+	
 	uint8_t rs;
 	uint8_t rt;
 	uint8_t rd;
@@ -43,6 +45,7 @@ private:
 	//int 			Jump;				// 0 if not a jump. Otherwise, reduced to zero after the last test has been performed
 	//int 			JumpTmp;			// used to count how many steps are left till the end of the jump
 	//bool	 		Link;
+	//uint32_t		reg31;				// Hold value for reg31 before branch that does not link
 	//string 		msg;				// hint-error message for an instructions
 };
 

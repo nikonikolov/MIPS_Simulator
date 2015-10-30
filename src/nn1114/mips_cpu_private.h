@@ -27,12 +27,12 @@ mips_error nn1114_mips_cpu_get_npc(
 	uint32_t *npc		//!< Where to write the byte address too
 );
 
-mips_error mips_cpu_set_npc(
+mips_error nn1114_mips_cpu_set_npc(
 	mips_cpu_h state,		//!< Valid (non-empty) handle to a CPU
 	uint32_t npc			//!< Address of the next instruction to exectute.
 );	
 
-mips_error mips_cpu_set_branch(
+mips_error nn1114_mips_cpu_set_branch(
 	mips_cpu_h state,		//!< Valid (non-empty) handle to a CPU
 	uint32_t branch			//!< Address of the next instruction to exectute.
 );	
